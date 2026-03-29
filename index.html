@@ -6,11 +6,14 @@
 
 <title>Lab Científico PIBIC PRO</title>
 
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4f7cff">
 
+<!-- IOS -->
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
 
 <style>
 body{
@@ -42,12 +45,19 @@ button{
 h1,h2{color:white;}
 canvas{background:white;border-radius:10px;}
 pre{white-space:pre-wrap;}
+.install-btn{
+  background:#10b981;
+}
 </style>
 </head>
 
 <body>
 
 <h1>🧪 Lab Científico PIBIC PRO</h1>
+
+<button id="installBtn" class="install-btn" style="display:none">
+📱 Instalar App
+</button>
 
 <!-- FORM -->
 <div class="card">
@@ -93,7 +103,7 @@ pre{white-space:pre-wrap;}
 <p>Desvio padrão: <span id="std"></span></p>
 <p>Coeficiente de variação: <span id="cv"></span></p>
 <p>Mediana: <span id="median"></span></p>
-<p>Quartis (Q1/Q3): <span id="quart"></span></p>
+<p>Quartis: <span id="quart"></span></p>
 </div>
 
 <!-- DASHBOARD -->
@@ -109,23 +119,11 @@ pre{white-space:pre-wrap;}
 <pre id="texto"></pre>
 </div>
 
-<!-- MANUAL -->
-<div class="card">
-<h2>Manual</h2>
-<ul>
-<li>Engajamento = interações / alcance × 100</li>
-<li>CV alto = dados instáveis</li>
-<li>DP baixo = consistência</li>
-</ul>
-</div>
-
 <script>
 
-// ===== DADOS =====
 let data = JSON.parse(localStorage.getItem("dados")||"[]");
 function save(){localStorage.setItem("dados",JSON.stringify(data));}
 
-// ===== FUNÇÕES =====
 function eng(d){
 return (d.curtidas+d.comentarios+d.comp+d.salvos)/d.alcance*100;
 }
@@ -151,7 +149,6 @@ q3:s[Math.floor(3*s.length/4)]
 };
 }
 
-// ===== ADD =====
 function add(){
 data.push({
 tipo:tipo.value,
@@ -166,8 +163,10 @@ save();
 alert("Adicionado");
 }
 
-// ===== ANALISAR =====
 function analisar(){
+
+if(data.length<2){alert("Adicione mais dados");return;}
+
 let r=data.map(eng);
 
 let m=avg(r);
@@ -182,16 +181,11 @@ cv.innerText=cv.toFixed(2)+"%";
 median.innerText=med.toFixed(2);
 quart.innerText=q.q1.toFixed(2)+" / "+q.q3.toFixed(2);
 
-// gráfico 1
 new Chart(g1,{
 type:"bar",
-data:{
-labels:data.map((_,i)=>"Post "+(i+1)),
-datasets:[{label:"Engajamento",data:r}]
-}
+data:{labels:data.map((_,i)=>"Post "+(i+1)),datasets:[{label:"Engajamento",data:r}]}
 });
 
-// gráfico 2
 let tipos=[...new Set(data.map(d=>d.tipo))];
 let medias=tipos.map(t=>avg(data.filter(d=>d.tipo===t).map(eng)));
 
@@ -201,7 +195,6 @@ data:{labels:tipos,datasets:[{label:"Média por Tipo",data:medias}]}
 });
 }
 
-// ===== ANOVA =====
 function anova(){
 let grupos={};
 
@@ -227,32 +220,22 @@ let F=ssBetween/ssWithin;
 alert("F = "+F.toFixed(3));
 }
 
-// ===== ARTIGO =====
 function gerarArtigoABNT(){
 let r=data.map(eng);
 let m=avg(r);
 let s=std(r);
 
 texto.innerText=
-`INTRODUÇÃO
-
-Estudo sobre engajamento digital.
-
-METODOLOGIA
-
-Análise de ${data.length} posts.
-
-RESULTADOS
+`RESULTADOS
 
 Média: ${m.toFixed(2)}%
 DP: ${s.toFixed(2)}
 
-CONCLUSÃO
+DISCUSSÃO
 
-Resultados indicam relevância do conteúdo digital.`;
+Resultados indicam padrão de engajamento digital.`;
 }
 
-// ===== IA =====
 function interpretacao(){
 let r=data.map(eng);
 let m=avg(r);
@@ -267,7 +250,6 @@ CV ${cv.toFixed(2)}%
 ${cv<20?"Alta consistência":"Alta variabilidade"}`;
 }
 
-// ===== EXPORTAR =====
 function exportarCSV(){
 let csv="tipo,tema,eng\n";
 data.forEach(d=>csv+=`${d.tipo},${d.tema},${eng(d)}\n`);
@@ -279,12 +261,27 @@ a.download="dados.csv";
 a.click();
 }
 
+// ===== INSTALL PWA =====
+let deferredPrompt;
+const installBtn = document.getElementById("installBtn");
+
+window.addEventListener("beforeinstallprompt", e=>{
+e.preventDefault();
+deferredPrompt=e;
+installBtn.style.display="block";
+});
+
+installBtn.onclick=()=>{
+deferredPrompt.prompt();
+deferredPrompt.userChoice.then(()=>deferredPrompt=null);
+};
+
 // ===== SERVICE WORKER =====
 if("serviceWorker" in navigator){
 navigator.serviceWorker.register("service-worker.js");
 }
 
-// ===== DADOS EXEMPLO =====
+// ===== EXEMPLO =====
 if(data.length===0){
 data=[
 {tipo:"Reel",tema:"IST",curtidas:120,comentarios:30,comp:20,salvos:40,alcance:2000},
