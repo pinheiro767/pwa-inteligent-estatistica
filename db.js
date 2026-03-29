@@ -1,7 +1,7 @@
-function salvarLocal(dados){
-  localStorage.setItem("dados", JSON.stringify(dados));
+function salvarLocal(d){
+ localStorage.setItem("dados",JSON.stringify(d))
 }
 
 function carregarLocal(){
-  return JSON.parse(localStorage.getItem("dados")) || [];
+ return JSON.parse(localStorage.getItem("dados"))||[]
 }
