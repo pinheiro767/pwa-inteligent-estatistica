@@ -4,12 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Lab Científico PIBIC</title>
+<title>Lab Científico</title>
 
-<link rel="stylesheet" href="styles.css">
 <link rel="manifest" href="manifest.json">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{background:#0b1020;color:white;font-family:Arial;margin:0}
+header{padding:15px;text-align:center;background:#111}
+.card{background:#111;margin:10px;padding:15px;border-radius:10px}
+button{background:#7aa2ff;border:none;padding:10px;color:black;border-radius:8px;margin:5px}
+input,select{width:100%;padding:6px;margin:2px}
+</style>
 </head>
 
 <body>
@@ -18,87 +25,45 @@
 <h1>📊 Lab Científico PIBIC</h1>
 </header>
 
-<nav>
-<button onclick="mostrar('dashboard')">Dashboard</button>
-<button onclick="mostrar('dados')">Dados</button>
-<button onclick="mostrar('artigo')">Artigo</button>
-<button onclick="mostrar('manual')">Manual</button>
-</nav>
-
-<!-- DASHBOARD -->
-<section id="dashboard">
-
 <div class="card">
-<h2>📊 Progresso</h2>
-<div class="progress-bar"><div id="progresso"></div></div>
+<h3>📊 Progresso</h3>
+<div style="background:#333;height:20px;border-radius:10px">
+<div id="progresso" style="height:100%;width:0%;background:#7aa2ff"></div>
+</div>
 <p id="textoProgresso"></p>
 </div>
 
 <div class="card">
-<h2>📈 Estatísticas</h2>
-<div id="stats"></div>
-</div>
-
-<canvas id="graficoEngajamento"></canvas>
-<canvas id="graficoComparacao"></canvas>
-
-<div class="card">
-<h2>🤖 Orientador</h2>
-<div id="orientador"></div>
-</div>
-
-</section>
-
-<!-- DADOS -->
-<section id="dados" style="display:none;">
-
-<table>
+<h3>📥 Dados</h3>
+<table width="100%">
 <thead>
 <tr>
-<th>Tema</th><th>Autor</th><th>Likes</th><th>Com</th><th>Env</th><th>Salv</th><th>Alcance</th><th></th>
+<th>Tema</th><th>Autor</th><th>Likes</th><th>Com</th><th>Env</th><th>Salv</th><th>Alc</th><th></th>
 </tr>
 </thead>
 <tbody id="tabelaDados"></tbody>
 </table>
 
-<button onclick="adicionarLinha()">➕ Linha</button>
-<button onclick="salvarTabela()">💾 Salvar</button>
-
-</section>
-
-<!-- ARTIGO -->
-<section id="artigo" style="display:none;">
-
-<div class="card">
-<h2>📄 Construção do Artigo</h2>
-
-<textarea id="inputArtigo" placeholder="Cole referências ou dados..."></textarea>
-
-<button onclick="gerarArtigo()">Gerar Texto</button>
-
-<pre id="saidaArtigo"></pre>
-
+<button onclick="addRow()">➕ Linha</button>
+<button onclick="salvar()">💾 Salvar</button>
 </div>
 
-</section>
-
-<!-- MANUAL -->
-<section id="manual" style="display:none;">
 <div class="card">
-<h2>📖 Manual</h2>
-
-<p><b>Inserção:</b> inserir dados a cada 15 dias.</p>
-<p><b>Média:</b> nível de engajamento.</p>
-<p><b>Desvio:</b> estabilidade dos dados.</p>
-<p><b>p-value:</b> relevância estatística.</p>
-
-<p><b>Lembrete:</b> coletar dados com Cláudia Pinheiro.</p>
-
+<h3>📊 Estatísticas</h3>
+<div id="stats"></div>
 </div>
-</section>
 
-<script src="db.js"></script>
-<script src="stats.js"></script>
+<canvas id="grafico"></canvas>
+
+<div class="card">
+<h3>🤖 Orientador</h3>
+<div id="orientador"></div>
+</div>
+
+<div class="card">
+<button onclick="instalarApp()">📲 Baixar App</button>
+</div>
+
 <script src="app.js"></script>
 
 </body>
