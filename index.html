@@ -1,257 +1,1119 @@
 <!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Lab Científico PIBIC PRO</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-<style>
-body{background:#0d1117;color:#c9d1d9;font-family:Arial}
-.card{background:#161b22;border:1px solid #21262d;border-radius:12px;padding:16px;margin-bottom:16px}
-input{background:#0d1117;border:1px solid #21262d;padding:8px;border-radius:6px;color:white;width:100%}
-button{background:#6390ff;padding:8px;border-radius:6px;color:white}
-.hidden{display:none}
+<html lang="pt-BR" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab Científico PIBIC</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { body: ['DM Sans', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
+    }
+  }
+}
+</script>
+  <style>
+  html, body { height: 100%; margin: 0; }
+  .scroll-wrap { height: 100%; overflow: auto; }
+  
+  /* Card animations */
+  .stat-card { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .stat-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(99,144,255,0.2); border-color: rgba(99,144,255,0.4); }
+  
+  /* Staggered fade in */
+  .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @keyframes fadeIn { 
+    from { 
+      opacity: 0; 
+      transform: translateY(16px); 
+    } 
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    } 
+  }
+  
+  /* Pulse animation for status */
+  .pulse-dot { animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 
+    0%, 100% { opacity: 1; transform: scale(1); } 
+    50% { opacity: 0.5; transform: scale(1.2); } 
+  }
+  
+  /* Input focus styling */
+  input:focus, textarea:focus { 
+    outline: none; 
+    box-shadow: 0 0 0 3px rgba(99, 144, 255, 0.2), 0 0 0 1.5px rgba(99, 144, 255, 0.8);
+    border-color: rgba(99, 144, 255, 0.8);
+  }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #0d1117; }
+  ::-webkit-scrollbar-thumb { 
+    background: linear-gradient(to bottom, #6390ff, #34d399); 
+    border-radius: 4px; 
+    border: 2px solid #0d1117;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: linear-gradient(to bottom, #748ffd, #5ce0b0); }
+  
+  /* Button animations */
+  button { transition: all 0.3s ease; }
+  button:active { transform: scale(0.96); }
+  
+  /* Table row hover */
+  tbody tr { transition: all 0.2s ease; }
+  tbody tr:hover { background-color: #1c2333 !important; }
+  
+  /* Delete button styling */
+  .delete-btn { 
+    transition: all 0.2s ease;
+    opacity: 0.6;
+  }
+  .delete-btn:hover { 
+    opacity: 1;
+    color: #ff6b6b;
+  }
+  
+  /* Chart container animation */
+  #chart { animation: slideUp 0.6s ease-out; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Section headers with gradient underline */
+  .section-header {
+    position: relative;
+    padding-bottom: 8px;
+  }
+  .section-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(90deg, #6390ff, #34d399);
+    border-radius: 1px;
+  }
 </style>
-</head>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full bg-[#0d1117] text-[#c9d1d9] font-body">
+  <div class="scroll-wrap w-full" id="app-root">
+   <!-- Header -->
+   <header class="bg-[#161b22] border-b border-[#21262d] px-6 py-5 fade-in">
+    <div class="max-w-6xl mx-auto flex items-center justify-between flex-wrap gap-3">
+     <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-[#6390ff] flex items-center justify-center text-white font-bold text-lg">
+       P
+      </div>
+      <div>
+       <h1 id="el-title" class="text-xl font-bold text-white leading-tight">Lab Científico PIBIC</h1>
+       <p id="el-objective" class="text-sm text-[#8b949e] mt-0.5">Analisar engajamento digital em saúde</p>
+      </div>
+     </div>
+     <div class="flex items-center gap-2 text-xs text-[#8b949e]">
+      <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> <span id="record-count">0 registros</span>
+     </div>
+    </div>
+   </header>
+   <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <!-- Progress -->
+    <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in" style="animation-delay:0.05s">
+     <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="trending-up" style="width:16px;height:16px"></i> Progresso do Projeto</h2>
+     <div class="w-full bg-[#0d1117] rounded-full h-3 overflow-hidden">
+      <div id="progress-bar" class="h-3 rounded-full bg-gradient-to-r from-[#6390ff] to-emerald-400 transition-all duration-700" style="width:0%"></div>
+     </div>
+     <p id="progress-text" class="text-xs text-[#8b949e] mt-2">Insira dados para começar</p>
+    </section><!-- Data Entry -->
+    <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in" style="animation-delay:0.1s">
+     <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider mb-4 flex items-center gap-2"><i data-lucide="database" style="width:16px;height:16px"></i> Entrada de Dados</h2>
+     <div id="form-area" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+      <input id="f-tema" class="col-span-2 sm:col-span-1 bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Tema"> <input id="f-autor" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Autor"> <input id="f-curtidas" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Curtidas"> <input id="f-comentarios" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Comentários"> <input id="f-compartilhamentos" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Compartilhamentos"> <input id="f-salvos" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Salvos"> <input id="f-alcance" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Alcance"> <button id="btn-add" onclick="handleAdd()" class="bg-[#6390ff] hover:bg-[#4f7af7] text-white font-semibold rounded-lg px-4 py-2 text-sm transition-colors flex items-center justify-center gap-1"> <i data-lucide="plus" style="width:16px;height:16px"></i> Adicionar </button>
+     </div><!-- Data Table -->
+     <div class="overflow-x-auto">
+      <table class="w-full text-xs">
+       <thead>
+        <tr class="text-[#8b949e] border-b border-[#21262d]">
+         <th class="text-left py-2 px-2 font-medium">Tema</th>
+         <th class="text-left py-2 px-2 font-medium">Autor</th>
+         <th class="text-right py-2 px-2 font-medium">👍</th>
+         <th class="text-right py-2 px-2 font-medium">💬</th>
+         <th class="text-right py-2 px-2 font-medium">🔁</th>
+         <th class="text-right py-2 px-2 font-medium">🔖</th>
+         <th class="text-right py-2 px-2 font-medium">📡</th>
+         <th class="py-2 px-2"></th>
+        </tr>
+       </thead>
+       <tbody id="data-table"></tbody>
+      </table>
+      <p id="empty-msg" class="text-center text-[#484f58] text-sm py-6">Nenhum dado inserido ainda</p>
+     </div>
+     <div id="limit-warning" class="hidden bg-amber-900/30 border border-amber-600/40 rounded-lg p-3 mt-3 text-amber-300 text-xs"></div>
+    </section><!-- Stats Grid -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-3 fade-in" style="animation-delay:0.15s" id="stats-grid">
+     <div class="stat-card bg-[#161b22] border border-[#21262d] rounded-2xl p-4">
+      <p class="text-[10px] text-[#8b949e] uppercase tracking-wider">Média Curtidas</p>
+      <p id="s-mean-curtidas" class="text-2xl font-bold text-white mt-1 font-mono">—</p>
+     </div>
+     <div class="stat-card bg-[#161b22] border border-[#21262d] rounded-2xl p-4">
+      <p class="text-[10px] text-[#8b949e] uppercase tracking-wider">Desvio Padrão</p>
+      <p id="s-std-curtidas" class="text-2xl font-bold text-white mt-1 font-mono">—</p>
+     </div>
+     <div class="stat-card bg-[#161b22] border border-[#21262d] rounded-2xl p-4">
+      <p class="text-[10px] text-[#8b949e] uppercase tracking-wider">Total Alcance</p>
+      <p id="s-total-alcance" class="text-2xl font-bold text-white mt-1 font-mono">—</p>
+     </div>
+     <div class="stat-card bg-[#161b22] border border-[#21262d] rounded-2xl p-4">
+      <p class="text-[10px] text-[#8b949e] uppercase tracking-wider">Engajamento</p>
+      <p id="s-engagement" class="text-2xl font-bold text-[#6390ff] mt-1 font-mono">—</p>
+     </div>
+    </section><!-- Interpretation -->
+    <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in" style="animation-delay:0.2s">
+     <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="brain" style="width:16px;height:16px"></i> Interpretação Estatística</h2>
+     <div id="interpretation" class="text-sm leading-relaxed text-[#8b949e]">
+      Adicione dados para gerar a interpretação automática.
+     </div>
+    </section><!-- Chart -->
+    <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in" style="animation-delay:0.25s">
+     <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider flex items-center gap-2"><i data-lucide="bar-chart-3" style="width:16px;height:16px"></i> Visualização</h2>
+      <div class="flex gap-2 flex-wrap">
+       <button onclick="handleGenerateChart()" class="bg-[#6390ff] hover:bg-[#4f7af7] text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="refresh-cw" style="width:14px;height:14px"></i> Gerar </button> <button onclick="handleExportPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="file-pdf" style="width:14px;height:14px"></i> PDF </button> <button onclick="handleExportExcel()" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="table" style="width:14px;height:14px"></i> Excel </button> <button onclick="handleDownloadApp()" class="bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="download" style="width:14px;height:14px"></i> App </button>
+      </div>
+     </div>
+     <div style="position:relative;height:280px">
+      <canvas id="chart"></canvas>
+     </div>
+    </section><!-- Scientific Writing -->
+    <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in" style="animation-delay:0.3s">
+     <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="file-text" style="width:16px;height:16px"></i> Escrita Científica (Gerada)</h2>
+     <div class="space-y-4">
+      <div>
+       <h3 class="text-xs font-bold text-[#6390ff] uppercase mb-1">Resultados</h3>
+       <p id="writing-results" class="text-sm text-[#8b949e] leading-relaxed bg-[#0d1117] rounded-lg p-3 border border-[#21262d]">Insira dados para gerar os resultados automaticamente.</p>
+      </div>
+      <div>
+       <h3 class="text-xs font-bold text-emerald-400 uppercase mb-1">Discussão</h3>
+       <p id="writing-discussion" class="text-sm text-[#8b949e] leading-relaxed bg-[#0d1117] rounded-lg p-3 border border-[#21262d]">Insira dados para gerar a discussão automaticamente.</p>
+      </div>
+     </div>
+    </section><!-- Advisor / Steps / Plan -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 fade-in" style="animation-delay:0.35s">
+     <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5">
+      <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="compass" style="width:16px;height:16px"></i> Orientador Científico</h2>
+      <div id="advisor" class="text-sm text-[#8b949e] leading-relaxed space-y-2"></div>
+     </section>
+     <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5">
+      <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="list-checks" style="width:16px;height:16px"></i> Etapas &amp; Próximos 15 dias</h2>
+      <div id="steps" class="text-sm text-[#8b949e] space-y-1"></div>
+     </section>
+    </div><!-- Manual -->
+    <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in" style="animation-delay:0.4s">
+     <details open>
+      <summary class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider cursor-pointer flex items-center gap-2"> <i data-lucide="book-open" style="width:16px;height:16px"></i> Manual Completo </summary>
+      <div class="mt-6 text-sm text-[#8b949e] leading-relaxed space-y-6">
+       <div>
+        <h3 class="text-white font-semibold text-base mb-2">📌 Objetivo do Projeto</h3>
+        <p>Analisar e quantificar o engajamento digital em conteúdos de saúde através de métricas de redes sociais, identificando padrões de comportamento e ressonância do público.</p>
+       </div>
+       <div>
+        <h3 class="text-white font-semibold text-base mb-2">🔄 Fluxo de Trabalho</h3>
+        <p>1) <strong>Coleta</strong> — Receber dados das publicações → 2) <strong>Entrada</strong> — Inserir no sistema → 3) <strong>Análise</strong> — Calcular estatísticas → 4) <strong>Interpretação</strong> — Gerar insights → 5) <strong>Redação</strong> — Escrever artigo científico</p>
+       </div>
+       <div>
+        <h3 class="text-white font-semibold text-lg mb-4">📊 EXPLICAÇÃO COMPLETA DE CADA MÉTRICA</h3>
+        <div class="space-y-5">
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <h4 class="text-[#34d399] font-bold mb-3">👍 CURTIDAS</h4>
+          <p class="mb-2"><strong>O que é:</strong> Número de curtidas, reações ou "likes" que uma publicação recebeu.</p>
+          <p class="mb-2"><strong>Por que importa:</strong> Curtidas indicam aprovação e afinidade imediata do público. É a métrica mais acessível e direta de satisfação inicial.</p>
+          <p class="mb-2"><strong>Interpretação:</strong> Média alta = conteúdo consistentemente bem-recebido. Média baixa = conteúdo pode precisar ajustes. Alto desvio padrão = alguns posts "bomba" e outros fracassam.</p>
+          <p><strong>Na análise estatística:</strong> Calculamos a média para o valor típico e o desvio padrão para ver a variabilidade.</p>
+         </div>
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <h4 class="text-[#34d399] font-bold mb-3">💬 COMENTÁRIOS</h4>
+          <p class="mb-2"><strong>O que é:</strong> Número de respostas textuais que os usuários deixaram.</p>
+          <p class="mb-2"><strong>Por que é MAIS valioso que curtidas:</strong> Comentários representam engajamento profundo e deliberado. Exigem leitura, reflexão e dedicação de tempo.</p>
+          <p class="mb-2"><strong>O que indica:</strong></p>
+          <ul class="list-disc ml-5 space-y-1 text-sm">
+           <li>Clareza do conteúdo — texto compreensível gera diálogo</li>
+           <li>Relevância pessoal — assunto tocou significativamente</li>
+           <li>Comunidade ativa — há discussão, não apenas consumo passivo</li>
+          </ul>
+          <p class="mt-2"><strong>Benchmark:</strong> Um post com 200 curtidas + 50 comentários é MELHOR que um com 500 curtidas + 2 comentários.</p>
+         </div>
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <h4 class="text-[#34d399] font-bold mb-3">🔁 COMPARTILHAMENTOS</h4>
+          <p class="mb-2"><strong>O que é:</strong> Número de vezes que a publicação foi compartilhada para outros perfis ou grupos.</p>
+          <p class="mb-2"><strong>Por que é o INDICADOR MAIS IMPORTANTE:</strong> Compartilhamentos significam que o usuário não apenas consumiu, mas achou tão relevante que desejou disseminar para sua rede.</p>
+          <p class="mb-2"><strong>O que indica:</strong></p>
+          <ul class="list-disc ml-5 space-y-1 text-sm">
+           <li>Valor percebido — conteúdo considerado valioso</li>
+           <li>Efeito viral — alcance exponencial através de redes secundárias</li>
+           <li>Credibilidade — pessoas compartilham apenas o que confiam</li>
+           <li>Impacto social — maior disseminação do conhecimento</li>
+          </ul>
+          <p class="mt-2"><strong>Distribuição:</strong> Compartilhamentos são altamente heterogêneos. Alguns posts geram muitos, outros nenhum — isso explica altos desvios padrão.</p>
+         </div>
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <h4 class="text-[#34d399] font-bold mb-3">🔖 SALVOS (Bookmarks)</h4>
+          <p class="mb-2"><strong>O que é:</strong> Número de vezes que usuários clicaram "salvar" para guardar a publicação.</p>
+          <p class="mb-2"><strong>Por que indica valor duradouro:</strong> Salvar é ação intencional. O usuário diz: "Vou precisar disso depois".</p>
+          <p class="mb-2"><strong>O que indica:</strong></p>
+          <ul class="list-disc ml-5 space-y-1 text-sm">
+           <li>Conteúdo educativo/referencial — material para consulta</li>
+           <li>Aplicabilidade prática — usuário pode usar na vida/trabalho</li>
+           <li>Confiabilidade — apenas conteúdo de qualidade é salvo</li>
+          </ul>
+          <p class="mt-2"><strong>Comparação:</strong> Salvos são mais raros que curtidas, mas muito mais significativos.</p>
+         </div>
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <h4 class="text-emerald-400 font-bold mb-3">📡 ALCANCE (Reach/Impressions)</h4>
+          <p class="mb-2"><strong>O que é:</strong> Número total de pessoas que viram a publicação.</p>
+          <p class="mb-2"><strong>Por que é FUNDAMENTAL:</strong> SEM ALCANCE, NÃO HÁ ENGAJAMENTO POSSÍVEL. O alcance é o denominador de todas as métricas.</p>
+          <p class="mb-2"><strong>Uso crítico:</strong> Permite calcular a taxa de engajamento normalizada (engajamento ÷ alcance × 100%).</p>
+          <p class="mb-2"><strong>Interpretação:</strong></p>
+          <ul class="list-disc ml-5 space-y-1 text-sm">
+           <li>Alcance crescente = sua conta atingindo mais pessoas</li>
+           <li>Alcance estável = performance mantida</li>
+           <li>Alcance decrescente = possível problema com algoritmo ou qualidade</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+       <div>
+        <h3 class="text-white font-semibold text-lg mb-4">📈 ESTATÍSTICAS CALCULADAS — INTERPRETAÇÃO PROFUNDA</h3>
+        <div class="space-y-5">
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <h4 class="text-emerald-400 font-bold mb-3">🔢 MÉDIA DE CURTIDAS</h4>
+          <p class="mb-3"><strong>Fórmula:</strong> Soma de todas as curtidas ÷ Número de publicações</p>
+          <p class="mb-3"><strong>Significado:</strong> Representa o valor TÍPICO ou CENTRAL dos dados. Se a média é 50 curtidas, esperamos que próximas publicações recebam aproximadamente esse valor.</p>
+          <p class="mb-3"><strong>Interpretação prática:</strong></p>
+          <ul class="list-disc ml-5 space-y-1 text-sm">
+           <li>Média alta (ex: 200+) = Conteúdo gera aprovação consistente</li>
+           <li>Média baixa (ex: &lt;50) = Conteúdo pode precisar ajustes estratégicos</li>
+           <li>Comparando períodos = Vemos se engajamento está melhorando ou piorando</li>
+           <li>Estabelece benchmarks = Pode comparar com concorrentes ou seu histórico</li>
+          </ul>
+         </div>
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <h4 class="text-[#6390ff] font-bold mb-3">📊 DESVIO PADRÃO</h4>
+          <p class="mb-3"><strong>Definição técnica:</strong> Raiz quadrada da variância — mede quanto os dados se DISPERSAM em torno da média.</p>
+          <p class="mb-3 text-white font-mono text-xs bg-[#161b22] p-2 rounded">DP = √[Σ(valor - média)² ÷ (n-1)]</p>
+          <p class="mb-3"><strong>Significado simples:</strong> Mostra CONSISTÊNCIA dos dados. Baixo DP = dados próximos à média. Alto DP = dados muito espalhados.</p>
+          <div class="mb-3 p-3 bg-[#161b22] rounded border border-[#21262d]">
+           <p class="text-white font-semibold mb-2">Exemplos de Interpretação:</p>
+           <ul class="space-y-2 text-sm">
+            <li><strong>DP = 5 (baixo):</strong> Valores: 48, 49, 50, 51, 52<br>
+             → Dados muito consistentes, comportamento previsível ✅</li>
+            <li><strong>DP = 100 (alto):</strong> Valores: 10, 50, 200, 5, 500<br>
+             → Dados muito dispersos, imprevisível ⚠️</li>
+           </ul>
+          </div>
+          <p class="mb-3"><strong>Coeficiente de Variação (CV):</strong> DP ÷ Média × 100%<br>
+           Padroniza o desvio padrão (elimina escala):</p>
+          <ul class="list-disc ml-5 space-y-1 text-sm">
+           <li><strong>CV &lt; 15%</strong> = Muito consistente (excelente predictor)</li>
+           <li><strong>CV 15-30%</strong> = Consistente (bom)</li>
+           <li><strong>CV 30-50%</strong> = Variação moderada (aceitável)</li>
+           <li><strong>CV &gt; 50%</strong> = Heterogêneo demais (requer investigação)</li>
+          </ul>
+          <p class="mt-3"><strong>⚡ Regra 68-95-99:</strong> Em distribuição normal:</p>
+          <ul class="list-disc ml-5 space-y-1 text-sm">
+           <li>~68% dos dados caem dentro de ±1DP da média</li>
+           <li>~95% dos dados caem dentro de ±2DP</li>
+           <li>~99% dos dados caem dentro de ±3DP</li>
+          </ul>
+         </div>
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <h4 class="text-violet-400 font-bold mb-3">🎯 TOTAL DE ALCANCE</h4>
+          <p class="mb-3"><strong>Cálculo:</strong> Soma de todo o alcance de todas as publicações analisadas</p>
+          <p class="mb-3"><strong>Significado:</strong> Tamanho COMBINADO do público que você atingiu no período. Define o potencial máximo de impacto.</p>
+          <p class="mb-3"><strong>Interpretação:</strong></p>
+          <ul class="list-disc ml-5 space-y-1 text-sm">
+           <li>Alcance crescente = conta atingindo mais pessoas (bom)</li>
+           <li>Alcance estável = performance mantida</li>
+           <li>Alcance decrescente = possível problema com algoritmo ou qualidade</li>
+           <li>Comparar com engajamento = identifica se público está interagindo ou apenas vendo passivamente</li>
+          </ul>
+         </div>
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <h4 class="text-amber-400 font-bold mb-3">⚡ TAXA DE ENGAJAMENTO (%)</h4>
+          <p class="mb-3"><strong>Fórmula mais importante:</strong></p>
+          <p class="text-white font-mono text-xs bg-[#161b22] p-2 rounded mb-3">Taxa (%) = (Σ Curtidas + Comentários + Compartilhamentos + Salvos) ÷ Alcance Total × 100%</p>
+          <p class="mb-3"><strong>Significado:</strong> Qual PERCENTUAL das pessoas que viram o conteúdo realmente interagiram com ele.</p>
+          <div class="mb-3 p-3 bg-[#161b22] rounded border border-[#21262d]">
+           <p class="text-white font-semibold mb-2">Exemplo Prático:</p>
+           <ul class="space-y-1 text-sm">
+            <li>Alcance: 1000 pessoas</li>
+            <li>Curtidas: 50 + Comentários: 20 + Compartilhamentos: 10 + Salvos: 5 = 85 interações</li>
+            <li><strong>Taxa = 85 ÷ 1000 × 100 = 8.5% 📊</strong></li>
+           </ul>
+          </div>
+          <p class="mb-3"><strong>Benchmarks Internacionais de Engajamento:</strong></p>
+          <ul class="list-disc ml-5 space-y-2 text-sm">
+           <li><strong>0-1%</strong> = Baixo engajamento (requer mudança de estratégia)</li>
+           <li><strong>1-3%</strong> = Médio (expectativa normal para maioria das contas)</li>
+           <li><strong>3-5%</strong> = Bom (acima da média)</li>
+           <li><strong>5-10%</strong> = Excelente (muito acima da média)</li>
+           <li><strong>&gt; 10%</strong> = Viral/excepcional (raro, indica conteúdo extraordinário)</li>
+          </ul>
+          <p class="mt-3 text-sm italic">⚠️ Nota: Esses benchmarks variam por nicho. Contas educacionais costumam ter engajamento mais alto que contas de notícias genéricas.</p>
+         </div>
+        </div>
+       </div>
+       <div>
+        <h3 class="text-white font-semibold text-lg mb-4">🔍 COMO INTERPRETAR AS MÉTRICAS CONJUNTAMENTE</h3>
+        <div class="space-y-4">
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <p class="text-[#34d399] font-semibold mb-2">📌 Cenário 1: Alta Média + Alto Desvio Padrão</p>
+          <p class="mb-2"><strong>Exemplo:</strong> Média = 100 curtidas, DP = 80</p>
+          <p class="text-[#8b949e] mb-2">→ <strong>Interpretação:</strong> Seus posts são VARIÁVEIS. Alguns "bomba" (180+ curtidas), outros fracassam (&lt;20). Nem toda sua estratégia funciona consistentemente.</p>
+          <p class="text-emerald-400">✅ <strong>Recomendação:</strong> Analise quais posts tiveram mais sucesso e replique o padrão.</p>
+         </div>
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <p class="text-[#34d399] font-semibold mb-2">📌 Cenário 2: Baixa Média + Baixo Desvio Padrão</p>
+          <p class="mb-2"><strong>Exemplo:</strong> Média = 20 curtidas, DP = 3</p>
+          <p class="text-[#8b949e] mb-2">→ <strong>Interpretação:</strong> Seus posts são CONSISTENTEMENTE RUINS, com comportamento previsível. Você não está resonando com a audiência.</p>
+          <p class="text-red-400">⚠️ <strong>Recomendação:</strong> Mude a estratégia de conteúdo completamente. Revise tema, horário, formato, tom.</p>
+         </div>
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <p class="text-[#34d399] font-semibold mb-2">📌 Cenário 3: Baixa Média + Alta Taxa de Engajamento</p>
+          <p class="mb-2"><strong>Exemplo:</strong> Média Curtidas = 30, Taxa de Engajamento = 8%</p>
+          <p class="text-[#8b949e] mb-2">→ <strong>Interpretação:</strong> Você tem público PEQUENO, mas ULTRA-LEAL. Isso é OURO em pesquisa! Indica conteúdo altamente relevante para nichos específicos.</p>
+          <p class="text-emerald-400">✅ <strong>Recomendação:</strong> Mantenha a qualidade, considere expandir público gradualmente.</p>
+         </div>
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <p class="text-[#34d399] font-semibold mb-2">📌 Cenário 4: Alta Média + Baixa Taxa de Engajamento</p>
+          <p class="mb-2"><strong>Exemplo:</strong> Média Curtidas = 500, Taxa de Engajamento = 0.5%</p>
+          <p class="text-[#8b949e] mb-2">→ <strong>Interpretação:</strong> Alto alcance, mas POUCAS INTERAÇÕES REAIS. O algoritmo está distribuindo bem, mas conteúdo não gera ação.</p>
+          <p class="text-amber-400">⚡ <strong>Recomendação:</strong> Melhor qualidade, call-to-action mais claro, conteúdo mais acionável.</p>
+         </div>
+         <div class="bg-[#0d1117] rounded-lg p-4 border border-[#21262d]">
+          <p class="text-[#34d399] font-semibold mb-2">📌 Cenário 5: Alto Desvio Padrão + Muitos Compartilhamentos</p>
+          <p class="mb-2"><strong>Exemplo:</strong> DP = 150, Compartilhamentos = 300+</p>
+          <p class="text-[#8b949e] mb-2">→ <strong>Interpretação:</strong> Você tem CONTEÚDO VIRAL EM POTENCIAL! Alguns posts explodem, outros não. Há padrão viável sendo descoberto.</p>
+          <p class="text-emerald-400">✅ <strong>Recomendação:</strong> Estude os "posts bomba" — qual era o tema, horário, formato? Replique consciente e intencionalmente.</p>
+         </div>
+        </div>
+       </div>
+       <div class="bg-[#0d1117] rounded-lg p-5 border border-[#21262d]">
+        <h3 class="text-white font-bold text-lg mb-4">✅ CHECKLIST: COMO USAR ESTA FERRAMENTA</h3>
+        <ol class="space-y-3">
+         <li><strong>1️⃣ Coleta de Dados:</strong> Registre TODAS as publicações do período — não selecione apenas as boas</li>
+         <li><strong>2️⃣ Entrada Consistente:</strong> Insira os dados regularmente, não deixe acumular</li>
+         <li><strong>3️⃣ Monitoramento de Tendências:</strong> Compare as métricas semana a semana — devem mostrar evolução</li>
+         <li><strong>4️⃣ Investigação de Outliers:</strong> Quando um post for muito melhor ou pior, analise o PORQUÊ</li>
+         <li><strong>5️⃣ Comunicação com Orientadora:</strong> Compartilhe os gráficos e estatísticas — eles contam uma história</li>
+         <li><strong>6️⃣ Ajuste Estratégico:</strong> Use insights para mudar tipo, tema, horário ou formato de publicação</li>
+         <li><strong>7️⃣ Redação Científica:</strong> Transforme essas métricas em parágrafos de Resultados e Discussão do artigo</li>
+        </ol>
+       </div>
+       <div class="bg-[#0d1117] rounded-lg p-5 border border-[#21262d]">
+        <h3 class="text-white font-bold text-lg mb-4">📅 CRONOGRAMA RECOMENDADO</h3>
+        <ul class="space-y-3">
+         <li><strong>📌 Diário:</strong> Verificar se os dados coletados estão corretos (5 min)</li>
+         <li><strong>📊 Semanal:</strong> Gerar os gráficos e revisar tendências (20 min)</li>
+         <li><strong>📈 Quinzenal (a cada 15 dias):</strong> Atualizar análise estatística completa — este é seu PONTO DE CONTROLE (1 hora)</li>
+         <li><strong>📝 Mensal:</strong> Escrever resumo narrativo dos resultados para apresentar à orientadora (2 horas)</li>
+         <li><strong>🎓 Final do projeto:</strong> Compilar tudo em artigo científico formal com Introduction, Methods, Results, Discussion e Conclusion</li>
+        </ul>
+       </div>
+       <div class="bg-[#0d1117] rounded-lg p-5 border border-[#21262d]">
+        <h3 class="text-white font-bold text-lg mb-4">📚 COMO TRANSFORMAR DADOS EM ARTIGO CIENTÍFICO</h3>
+        <div class="space-y-4">
+         <div>
+          <p class="text-emerald-400 font-semibold mb-2">SEÇÃO: RESULTADOS</p>
+          <p class="text-sm mb-2"><strong>Template:</strong></p>
+          <p class="text-[#8b949e] text-xs italic bg-[#161b22] p-3 rounded font-mono">"Foram analisadas [n] publicações. A média de curtidas foi [M] (DP = [DP]), indicando [interpretação]. O alcance total foi de [A] pessoas, com taxa de engajamento de [T]%."</p>
+         </div>
+         <div>
+          <p class="text-emerald-400 font-semibold mb-2">SEÇÃO: DISCUSSÃO</p>
+          <p class="text-sm mb-2"><strong>Template:</strong></p>
+          <p class="text-[#8b949e] text-xs italic bg-[#161b22] p-3 rounded font-mono">"Os resultados indicam [padrão observado]. O coeficiente de variação de [CV]% sugere [consistência/heterogeneidade]. Estes achados estão alinhados com [cite literatura] que demonstra [relevância científica]."</p>
+         </div>
+         <div class="p-3 bg-[#161b22] rounded border border-[#21262d]">
+          <p class="text-[#34d399] font-semibold mb-2">Exemplo Completo:</p>
+          <p class="text-xs text-[#8b949e]">"Foram analisadas 25 publicações sobre educação em saúde no Instagram. A média de curtidas foi 145 (DP = 87, CV = 60%), indicando variabilidade moderada nas respostas do público. O alcance total foi 3.500 pessoas, com taxa de engajamento de 4.8%, considerada excelente segundo literatura. Os resultados sugerem que conteúdo educativo gera alto envolvimento de nichos específicos, em linha com estudos de comunicação científica em redes sociais (Smith et al., 2023)."</p>
+         </div>
+        </div>
+       </div><!-- Toast -->
+       <div id="toast" class="fixed bottom-6 right-6 bg-[#161b22] border border-[#21262d] rounded-xl px-4 py-3 text-sm shadow-lg transition-all duration-300 translate-y-20 opacity-0 pointer-events-none z-50"></div>
+      </div>
+      <script>
+// ─── State ───
+let allData = [];
+let chartInstance = null;
 
-<body class="p-4 max-w-5xl mx-auto">
-
-<h1 class="text-2xl mb-4 font-bold">🧠 Lab Científico PIBIC PRO</h1>
-
-<!-- LOGIN -->
-<div class="card">
-<h2>🔒 Área do Orientador</h2>
-<input id="senha" placeholder="Digite a senha">
-<button onclick="login()">Entrar</button>
-</div>
-
-<!-- PROGRESSO -->
-<div class="card">
-<h2>Progresso</h2>
-<div style="background:#222;height:10px;border-radius:5px">
-<div id="progress" style="height:10px;background:#6390ff;width:0%"></div>
-</div>
-</div>
-
-<!-- FORM -->
-<div class="card">
-<h2>Entrada de Dados</h2>
-<div class="grid grid-cols-2 gap-2">
-<input id="tema" placeholder="Tema">
-<input id="autor" placeholder="Autor">
-<input id="curtidas" type="number" placeholder="Curtidas">
-<input id="comentarios" type="number" placeholder="Comentários">
-<input id="comp" type="number" placeholder="Compartilhamentos">
-<input id="salvos" type="number" placeholder="Salvos">
-<input id="alcance" type="number" placeholder="Alcance">
-<button onclick="add()">Adicionar</button>
-</div>
-</div>
-
-<!-- TABELA -->
-<div class="card">
-<h2>Dados</h2>
-<table class="w-full text-sm">
-<tbody id="tabela"></tbody>
-</table>
-</div>
-
-<!-- STATS -->
-<div class="card">
-<h2>Estatísticas</h2>
-<p id="stats"></p>
-</div>
-
-<!-- GRÁFICO -->
-<div class="card">
-<canvas id="grafico"></canvas>
-</div>
-
-<!-- ORIENTADOR -->
-<div class="card">
-<h2>Orientador</h2>
-<p id="advisor"></p>
-</div>
-
-<!-- ARTIGO OCULTO -->
-<div id="artigoArea" class="card hidden">
-<h2>📄 Artigo Científico Automático</h2>
-
-<div id="artigoTexto" style="background:white;color:black;padding:20px"></div>
-
-<button onclick="baixarPDF()">📥 Baixar PDF</button>
-</div>
-
-<script>
-
-let dados = JSON.parse(localStorage.getItem("dados")||"[]");
-let chart;
-
-// LOGIN
-function login(){
-if(senha.value==="prof2026"){
-artigoArea.classList.remove("hidden");
-gerarArtigo();
-}else{
-alert("Senha incorreta");
-}
-}
-
-// ADD
-function add(){
-
-let d={
-tema:tema.value,
-autor:autor.value,
-curtidas:+curtidas.value,
-comentarios:+comentarios.value,
-comp:+comp.value,
-salvos:+salvos.value,
-alcance:+alcance.value
+const defaultConfig = {
+  project_title: "Lab Científico PIBIC",
+  project_objective: "Analisar engajamento digital em saúde",
+  background_color: "#0d1117",
+  surface_color: "#161b22",
+  text_color: "#c9d1d9",
+  accent_color: "#6390ff",
+  secondary_accent: "#34d399",
+  font_family: "DM Sans",
+  font_size: 14
 };
 
-d.eng=(d.curtidas+d.comentarios+d.comp+d.salvos)/(d.alcance||1);
+// ─── Element SDK ───
+window.elementSdk.init({
+  defaultConfig,
+  onConfigChange: async (config) => {
+    const c = { ...defaultConfig, ...config };
+    const font = c.font_family || defaultConfig.font_family;
+    const base = c.font_size || defaultConfig.font_size;
 
-dados.push(d);
+    document.getElementById('el-title').textContent = c.project_title;
+    document.getElementById('el-objective').textContent = c.project_objective;
 
-localStorage.setItem("dados",JSON.stringify(dados));
+    document.body.style.backgroundColor = c.background_color;
+    document.body.style.color = c.text_color;
+    document.body.style.fontFamily = `${font}, DM Sans, sans-serif`;
+    document.body.style.fontSize = base + 'px';
 
-render();
-}
+    document.querySelectorAll('.stat-card, section.bg-\\[\\#161b22\\], header').forEach(el => {
+      el.style.backgroundColor = c.surface_color;
+    });
 
-// DELETE
-function del(i){
-dados.splice(i,1);
-localStorage.setItem("dados",JSON.stringify(dados));
-render();
-}
+    document.getElementById('s-engagement').style.color = c.accent_color;
+    document.querySelectorAll('.bg-gradient-to-r').forEach(el => {
+      el.style.background = `linear-gradient(to right, ${c.accent_color}, ${c.secondary_accent})`;
+    });
 
-// MÉDIA
-function media(arr){return arr.reduce((a,b)=>a+b,0)/arr.length}
-
-// DESVIO
-function desvio(arr){
-let m=media(arr);
-return Math.sqrt(arr.reduce((s,v)=>s+(v-m)**2,0)/(arr.length-1))
-}
-
-// REGRESSÃO
-function regressao(x,y){
-let n=x.length;
-let sumX=x.reduce((a,b)=>a+b,0);
-let sumY=y.reduce((a,b)=>a+b,0);
-let sumXY=x.reduce((s,v,i)=>s+v*y[i],0);
-let sumX2=x.reduce((s,v)=>s+v*v,0);
-
-let a=(n*sumXY-sumX*sumY)/(n*sumX2-sumX**2);
-let b=(sumY-a*sumX)/n;
-
-return {a,b};
-}
-
-// P-VALUE
-function pvalue(t){
-return Math.exp(-0.717*t-0.416*t*t);
-}
-
-// RENDER
-function render(){
-
-tabela.innerHTML="";
-dados.forEach((d,i)=>{
-tabela.innerHTML+=`
-<tr>
-<td>${d.tema}</td>
-<td>${d.autor}</td>
-<td>${(d.eng*100).toFixed(2)}%</td>
-<td><button onclick="del(${i})">X</button></td>
-</tr>`;
+    const logo = document.querySelector('header .w-10');
+    if (logo) logo.style.backgroundColor = c.accent_color;
+  },
+  mapToCapabilities: (config) => {
+    const c = { ...defaultConfig, ...config };
+    const mk = (key) => ({
+      get: () => c[key] || defaultConfig[key],
+      set: (v) => { c[key] = v; window.elementSdk.setConfig({ [key]: v }); }
+    });
+    return {
+      recolorables: [mk('background_color'), mk('surface_color'), mk('text_color'), mk('accent_color'), mk('secondary_accent')],
+      borderables: [],
+      fontEditable: mk('font_family'),
+      fontSizeable: mk('font_size')
+    };
+  },
+  mapToEditPanelValues: (config) => {
+    const c = { ...defaultConfig, ...config };
+    return new Map([
+      ["project_title", c.project_title],
+      ["project_objective", c.project_objective]
+    ]);
+  }
 });
 
-if(dados.length>0){
+// ─── Data SDK ───
+const dataHandler = {
+  onDataChanged(data) {
+    allData = data;
+    renderTable();
+    renderStats();
+    renderChart();
+    renderAdvisor();
+    renderWriting();
+    document.getElementById('record-count').textContent = data.length + ' registros';
+    updateProgress();
+  }
+};
 
-let eng=dados.map(d=>d.eng);
-let m=media(eng);
-let dp=desvio(eng);
-let t=Math.abs(m/(dp||1));
-let p=pvalue(t);
+(async () => {
+  const r = await window.dataSdk.init(dataHandler);
+  if (!r.isOk) console.error("Data SDK init failed");
+})();
 
-stats.innerHTML=`
-Média: ${(m*100).toFixed(2)}%<br>
-Desvio: ${(dp*100).toFixed(2)}%<br>
-p-value: ${p.toFixed(4)}
-`;
+// ─── Add Record ───
+async function handleAdd() {
+  if (allData.length >= 999) {
+    document.getElementById('limit-warning').classList.remove('hidden');
+    document.getElementById('limit-warning').textContent = '⚠️ Limite de 999 registros atingido. Exclua alguns antes de adicionar novos.';
+    return;
+  }
+  const fields = ['tema','autor','curtidas','comentarios','compartilhamentos','salvos','alcance'];
+  const vals = {};
+  fields.forEach(f => {
+    const el = document.getElementById('f-' + f);
+    vals[f] = ['curtidas','comentarios','compartilhamentos','salvos','alcance'].includes(f)
+      ? (parseInt(el.value) || 0) : (el.value || '');
+  });
 
+  const btn = document.getElementById('btn-add');
+  btn.disabled = true; btn.textContent = '...';
+
+  const res = await window.dataSdk.create({ ...vals, created_at: new Date().toISOString() });
+  btn.disabled = false; btn.innerHTML = '<i data-lucide="plus" style="width:16px;height:16px"></i> Adicionar';
+  lucide.createIcons();
+
+  if (res.isOk) {
+    fields.forEach(f => document.getElementById('f-' + f).value = '');
+    showToast('✅ Registro salvo!');
+  } else {
+    showToast('❌ Erro ao salvar');
+  }
 }
 
-// gráfico
-if(chart) chart.destroy();
-
-if(dados.length>0){
-
-let x=dados.map((_,i)=>i+1);
-let y=dados.map(d=>d.eng);
-
-let {a,b}=regressao(x,y);
-let pred=x.map(v=>a*v+b);
-
-chart=new Chart(grafico,{
-type:'line',
-data:{
-labels:x,
-datasets:[
-{label:'Engajamento',data:y},
-{label:'Tendência',data:pred}
-]
-}
-});
-
+// ─── Delete ───
+async function handleDelete(backendId) {
+  const record = allData.find(d => d.__backendId === backendId);
+  if (!record) return;
+  const res = await window.dataSdk.delete(record);
+  if (res.isOk) showToast('🗑️ Removido');
+  else showToast('❌ Erro ao remover');
 }
 
-// orientador
-if(dados.length<5) advisor.innerText="Colete mais dados";
-else if(dados.length<10) advisor.innerText="Análise preliminar";
-else advisor.innerText="Pronto para artigo";
+// ─── Render Table ───
+function renderTable() {
+  const tbody = document.getElementById('data-table');
+  const empty = document.getElementById('empty-msg');
+  const existingRows = new Map([...tbody.children].map(tr => [tr.dataset.id, tr]));
 
-progress.style.width=Math.min(100,dados.length*10)+"%";
+  const currentIds = new Set(allData.map(d => d.__backendId));
+  existingRows.forEach((tr, id) => { if (!currentIds.has(id)) tr.remove(); });
 
+  allData.forEach(d => {
+    let tr = existingRows.get(d.__backendId);
+    if (!tr) {
+      tr = document.createElement('tr');
+      tr.dataset.id = d.__backendId;
+      tr.className = 'border-b border-[#21262d] hover:bg-[#1c2333] transition-colors';
+      tbody.appendChild(tr);
+    }
+    tr.innerHTML = `
+      <td class="py-2 px-2 text-white">${esc(d.tema)}</td>
+      <td class="py-2 px-2">${esc(d.autor)}</td>
+      <td class="py-2 px-2 text-right font-mono">${num(d.curtidas)}</td>
+      <td class="py-2 px-2 text-right font-mono">${num(d.comentarios)}</td>
+      <td class="py-2 px-2 text-right font-mono">${num(d.compartilhamentos)}</td>
+      <td class="py-2 px-2 text-right font-mono">${num(d.salvos)}</td>
+      <td class="py-2 px-2 text-right font-mono">${num(d.alcance)}</td>
+      <td class="py-2 px-2 text-right"><button onclick="handleDelete('${d.__backendId}')" class="text-red-400 hover:text-red-300 text-xs">✕</button></td>
+    `;
+  });
+
+  empty.classList.toggle('hidden', allData.length > 0);
 }
 
-// ARTIGO AUTOMÁTICO
-function gerarArtigo(){
+// ─── Stats ───
+function renderStats() {
+  if (!allData.length) {
+    ['s-mean-curtidas','s-std-curtidas','s-total-alcance','s-engagement'].forEach(id =>
+      document.getElementById(id).textContent = '—');
+    document.getElementById('interpretation').textContent = 'Adicione dados para gerar a interpretação automática.';
+    return;
+  }
 
-if(dados.length===0) return;
+  const curtidas = allData.map(d => d.curtidas || 0);
+  const mean = avg(curtidas);
+  const std = stdDev(curtidas);
+  const totalAlcance = allData.reduce((s, d) => s + (d.alcance || 0), 0);
+  const totalEng = allData.reduce((s, d) => s + (d.curtidas||0) + (d.comentarios||0) + (d.compartilhamentos||0) + (d.salvos||0), 0);
+  const engRate = totalAlcance ? ((totalEng / totalAlcance) * 100).toFixed(2) : 0;
 
-let eng=dados.map(d=>d.eng);
-let m=media(eng).toFixed(3);
-let dp=desvio(eng).toFixed(3);
+  document.getElementById('s-mean-curtidas').textContent = mean.toFixed(1);
+  document.getElementById('s-std-curtidas').textContent = std.toFixed(1);
+  document.getElementById('s-total-alcance').textContent = fmtNum(totalAlcance);
+  document.getElementById('s-engagement').textContent = engRate + '%';
 
-artigoTexto.innerHTML=`
-<h2>RESULTADOS</h2>
-<p>Foram analisadas ${dados.length} publicações. A média de engajamento foi de ${m}, com desvio padrão de ${dp}.</p>
+  // Interpretation
+  const cv = mean > 0 ? (std / mean * 100).toFixed(1) : 0;
+  let interp = `<p>📊 <strong>Média de curtidas:</strong> ${mean.toFixed(1)} (DP = ${std.toFixed(1)}, CV = ${cv}%)</p>`;
+  interp += `<p>📡 <strong>Alcance total:</strong> ${fmtNum(totalAlcance)} | <strong>Taxa de engajamento:</strong> ${engRate}%</p>`;
+  if (cv > 50) interp += `<p>⚠️ Alta variabilidade (CV > 50%). Os dados são heterogêneos.</p>`;
+  else if (cv > 25) interp += `<p>📌 Variabilidade moderada (CV ${cv}%). Dados com dispersão aceitável.</p>`;
+  else interp += `<p>✅ Baixa variabilidade (CV ${cv}%). Dados consistentes.</p>`;
+  if (parseFloat(engRate) > 5) interp += `<p>🔥 Taxa de engajamento acima de 5% — excelente desempenho.</p>`;
+  else if (parseFloat(engRate) > 2) interp += `<p>👍 Taxa de engajamento entre 2-5% — bom desempenho.</p>`;
+  else interp += `<p>📉 Taxa de engajamento abaixo de 2% — pode indicar baixa ressonância do conteúdo.</p>`;
 
-<h2>DISCUSSÃO</h2>
-<p>Os dados indicam que o engajamento apresenta variação ${dp>m?"elevada":"moderada"}, sugerindo ${dp>m?"heterogeneidade":"consistência"} nas interações do público.</p>
-
-<h2>CONCLUSÃO</h2>
-<p>O uso do Instagram mostrou-se uma ferramenta relevante para educação em saúde.</p>
-`;
+  document.getElementById('interpretation').innerHTML = interp;
 }
 
-// PDF
-function baixarPDF(){
-html2pdf().from(artigoTexto).save("artigo.pdf");
+// ─── Chart ───
+function renderChart() {
+  const ctx = document.getElementById('chart');
+  if (chartInstance) chartInstance.destroy();
+  if (!allData.length) return;
+
+  const labels = allData.map((d, i) => d.tema || `#${i+1}`);
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Curtidas', data: allData.map(d => d.curtidas||0), backgroundColor: 'rgba(99,144,255,0.7)', borderRadius: 4 },
+        { label: 'Comentários', data: allData.map(d => d.comentarios||0), backgroundColor: 'rgba(52,211,153,0.7)', borderRadius: 4 },
+        { label: 'Compartilhamentos', data: allData.map(d => d.compartilhamentos||0), backgroundColor: 'rgba(251,191,36,0.7)', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#8b949e', font: { size: 11 } } } },
+      scales: {
+        x: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' } },
+        y: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' } }
+      }
+    }
+  });
 }
 
-// INIT
-render();
+// ─── Writing ───
+function renderWriting() {
+  if (!allData.length) {
+    document.getElementById('writing-results').textContent = 'Insira dados para gerar os resultados automaticamente.';
+    document.getElementById('writing-discussion').textContent = 'Insira dados para gerar a discussão automaticamente.';
+    return;
+  }
+  const n = allData.length;
+  const curtidas = allData.map(d => d.curtidas||0);
+  const m = avg(curtidas).toFixed(1);
+  const s = stdDev(curtidas).toFixed(1);
+  const totalAlc = allData.reduce((a,d) => a+(d.alcance||0), 0);
+  const totalEng = allData.reduce((a,d) => a+(d.curtidas||0)+(d.comentarios||0)+(d.compartilhamentos||0)+(d.salvos||0), 0);
+  const rate = totalAlc ? ((totalEng/totalAlc)*100).toFixed(2) : '0';
+
+  document.getElementById('writing-results').textContent =
+    `Foram analisadas ${n} publicações sobre saúde digital. A média de curtidas foi de ${m} (DP = ${s}). O alcance total das publicações foi de ${fmtNum(totalAlc)}, com uma taxa de engajamento de ${rate}%.`;
+  document.getElementById('writing-discussion').textContent =
+    `Os resultados indicam que as publicações analisadas obtiveram uma taxa de engajamento de ${rate}%, o que ${parseFloat(rate)>5?'é considerado excelente na literatura':'sugere oportunidades de otimização'}. A variabilidade observada (DP = ${s}) ${parseFloat(s)/parseFloat(m)*100 > 50 ? 'aponta para heterogeneidade nos dados, sugerindo que diferentes tipos de conteúdo geram respostas distintas' : 'indica consistência no padrão de engajamento'}.`;
+}
+
+// ─── Advisor & Steps ───
+function renderAdvisor() {
+  const n = allData.length;
+  let tips = [];
+  if (n === 0) tips = ['📌 Comece inserindo os dados recebidos da orientadora.', '📖 Leia ao menos 2 artigos sobre engajamento digital.'];
+  else if (n < 10) tips = ['📊 Continue coletando dados. Você tem ' + n + ' registros.', '🔍 Analise padrões iniciais nas métricas.', '📝 Comece rascunhos de resultados.'];
+  else tips = ['✅ Amostra robusta com ' + n + ' registros.', '📈 Execute análise estatística completa.', '📝 Finalize a escrita do artigo.', '🎯 Prepare-se para a apresentação.'];
+
+  document.getElementById('advisor').innerHTML = tips.map(t => `<p>${t}</p>`).join('');
+
+  const steps = [
+    { done: true, text: '1. Configurar sistema de coleta' },
+    { done: n > 0, text: '2. Inserir primeiros dados' },
+    { done: n >= 5, text: '3. Análise preliminar (≥5 registros)' },
+    { done: n >= 10, text: '4. Análise completa (≥10 registros)' },
+    { done: false, text: '5. Revisão com orientadora' },
+    { done: false, text: '6. Submeter artigo' }
+  ];
+  document.getElementById('steps').innerHTML = steps.map(s =>
+    `<p class="${s.done ? 'text-emerald-400' : ''}">${s.done ? '✅' : '⬜'} ${s.text}</p>`
+  ).join('');
+}
+
+function updateProgress() {
+  const n = allData.length;
+  let pct = Math.min(100, Math.round((n / 20) * 60) + (n > 0 ? 20 : 0));
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = pct + '% concluído — ' + n + ' registros coletados';
+}
+
+// ─── Helpers ───
+function avg(arr) { return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
+function stdDev(arr) {
+  if (arr.length < 2) return 0;
+  const m = avg(arr);
+  return Math.sqrt(arr.reduce((s,v) => s + (v-m)**2, 0) / (arr.length - 1));
+}
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+function num(n) { return (n || 0).toLocaleString('pt-BR'); }
+function fmtNum(n) { return n >= 1000 ? (n/1000).toFixed(1) + 'k' : n.toString(); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('translate-y-20','opacity-0','pointer-events-none');
+  setTimeout(() => t.classList.add('translate-y-20','opacity-0','pointer-events-none'), 2500);
+}
+
+// ─── Export Functions ───
+function handleGenerateChart() {
+  if (!allData.length) {
+    showToast('📊 Adicione dados para gerar o gráfico');
+    return;
+  }
+  renderChart();
+  showToast('✅ Gráfico atualizado!');
+}
+
+function handleExportPDF() {
+  if (!allData.length) {
+    showToast('📄 Adicione dados para exportar');
+    return;
+  }
+
+  const btn = event.target.closest('button');
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  setTimeout(() => {
+    const element = document.createElement('div');
+    element.style.padding = '20px';
+    element.style.backgroundColor = '#fff';
+    element.style.color = '#000';
+    element.innerHTML = `
+      <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">Lab Científico PIBIC</h1>
+      <p style="margin-bottom: 10px;"><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+      
+      <h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px;">Estatísticas</h2>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <tr style="border: 1px solid #ccc;">
+          <td style="padding: 8px; border: 1px solid #ccc;"><strong>Métrica</strong></td>
+          <td style="padding: 8px; border: 1px solid #ccc;"><strong>Valor</strong></td>
+        </tr>
+        <tr style="border: 1px solid #ccc;">
+          <td style="padding: 8px; border: 1px solid #ccc;">Registros</td>
+          <td style="padding: 8px; border: 1px solid #ccc;">${allData.length}</td>
+        </tr>
+        <tr style="border: 1px solid #ccc;">
+          <td style="padding: 8px; border: 1px solid #ccc;">Média de Curtidas</td>
+          <td style="padding: 8px; border: 1px solid #ccc;">${avg(allData.map(d => d.curtidas||0)).toFixed(1)}</td>
+        </tr>
+        <tr style="border: 1px solid #ccc;">
+          <td style="padding: 8px; border: 1px solid #ccc;">Total Alcance</td>
+          <td style="padding: 8px; border: 1px solid #ccc;">${allData.reduce((s,d) => s+(d.alcance||0), 0).toLocaleString('pt-BR')}</td>
+        </tr>
+        <tr style="border: 1px solid #ccc;">
+          <td style="padding: 8px; border: 1px solid #ccc;">Taxa Engajamento</td>
+          <td style="padding: 8px; border: 1px solid #ccc;">${document.getElementById('s-engagement').textContent}</td>
+        </tr>
+      </table>
+
+      <h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px;">Dados Completos</h2>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr style="background-color: #f0f0f0;">
+          <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Tema</th>
+          <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Autor</th>
+          <th style="padding: 8px; border: 1px solid #ccc; text-align: center;">Curtidas</th>
+          <th style="padding: 8px; border: 1px solid #ccc; text-align: center;">Comentários</th>
+          <th style="padding: 8px; border: 1px solid #ccc; text-align: center;">Compartilhamentos</th>
+        </tr>
+        ${allData.map(d => `
+          <tr>
+            <td style="padding: 8px; border: 1px solid #ccc;">${d.tema || '-'}</td>
+            <td style="padding: 8px; border: 1px solid #ccc;">${d.autor || '-'}</td>
+            <td style="padding: 8px; border: 1px solid #ccc; text-align: center;">${d.curtidas || 0}</td>
+            <td style="padding: 8px; border: 1px solid #ccc; text-align: center;">${d.comentarios || 0}</td>
+            <td style="padding: 8px; border: 1px solid #ccc; text-align: center;">${d.compartilhamentos || 0}</td>
+          </tr>
+        `).join('')}
+      </table>
+    `;
+
+    const opt = {
+      margin: 10,
+      filename: 'lab_cientifico_' + new Date().toISOString().split('T')[0] + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+    };
+    html2pdf().set(opt).from(element).save();
+    showToast('✅ PDF exportado!');
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="file-pdf" style="width:14px;height:14px"></i> PDF';
+    lucide.createIcons();
+  }, 100);
+}
+
+function handleExportExcel() {
+  if (!allData.length) {
+    showToast('📊 Adicione dados para exportar');
+    return;
+  }
+
+  const btn = event.target.closest('button');
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  let csv = 'Tema,Autor,Curtidas,Comentários,Compartilhamentos,Salvos,Alcance\n';
+  allData.forEach(d => {
+    csv += `"${d.tema || ''}","${d.autor || ''}",${d.curtidas||0},${d.comentarios||0},${d.compartilhamentos||0},${d.salvos||0},${d.alcance||0}\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', 'lab_cientifico_' + new Date().toISOString().split('T')[0] + '.csv');
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  showToast('✅ Excel exportado!');
+  btn.disabled = false;
+  btn.innerHTML = '<i data-lucide="table" style="width:14px;height:14px"></i> Excel';
+  lucide.createIcons();
+}
+
+function handleDownloadApp() {
+  const htmlContent = `<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab Científico PIBIC - Offline</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"><\/script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"><\/script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; }
+    .scroll-wrap { height: 100%; overflow: auto; }
+    .stat-card { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .stat-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(99,144,255,0.2); border-color: rgba(99,144,255,0.4); }
+    .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .pulse-dot { animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+    input:focus, textarea:focus { outline: none; box-shadow: 0 0 0 3px rgba(99, 144, 255, 0.2), 0 0 0 1.5px rgba(99, 144, 255, 0.8); border-color: rgba(99, 144, 255, 0.8); }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #6390ff, #34d399); border-radius: 4px; border: 2px solid #0d1117; }
+    button { transition: all 0.3s ease; }
+    button:active { transform: scale(0.96); }
+    tbody tr { transition: all 0.2s ease; }
+    tbody tr:hover { background-color: #1c2333 !important; }
+    #chart { animation: slideUp 0.6s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .section-header { position: relative; padding-bottom: 8px; }
+    .section-header::after { content: ''; position: absolute; bottom: 0; left: 0; width: 40px; height: 2px; background: linear-gradient(90deg, #6390ff, #34d399); border-radius: 1px; }
+    body { box-sizing: border-box; }
+  </style>
+</head>
+<body class="h-full bg-[#0d1117] text-[#c9d1d9] font-body">
+  <div class="scroll-wrap w-full" id="app-root">
+    <header class="bg-[#161b22] border-b border-[#21262d] px-6 py-5 fade-in">
+      <div class="max-w-6xl mx-auto flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-[#6390ff] flex items-center justify-center text-white font-bold text-lg">P</div>
+          <div><h1 class="text-xl font-bold text-white leading-tight">Lab Científico PIBIC</h1><p class="text-sm text-[#8b949e] mt-0.5">Analisar engajamento digital em saúde</p></div>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-[#8b949e]"><span class="pulse-dot w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> <span id="record-count">0 registros</span></div>
+      </div>
+    </header>
+    <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in">
+        <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="trending-up" style="width:16px;height:16px"></i> Progresso do Projeto</h2>
+        <div class="w-full bg-[#0d1117] rounded-full h-3 overflow-hidden"><div id="progress-bar" class="h-3 rounded-full bg-gradient-to-r from-[#6390ff] to-emerald-400 transition-all duration-700" style="width:0%"></div></div>
+        <p id="progress-text" class="text-xs text-[#8b949e] mt-2">Insira dados para começar</p>
+      </section>
+      <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in">
+        <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider mb-4 flex items-center gap-2"><i data-lucide="database" style="width:16px;height:16px"></i> Entrada de Dados</h2>
+        <div id="form-area" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4"><input id="f-tema" class="col-span-2 sm:col-span-1 bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Tema"> <input id="f-autor" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Autor"> <input id="f-curtidas" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Curtidas"> <input id="f-comentarios" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Comentários"> <input id="f-compartilhamentos" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Compartilhamentos"> <input id="f-salvos" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Salvos"> <input id="f-alcance" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Alcance"> <button id="btn-add" onclick="handleAdd()" class="bg-[#6390ff] hover:bg-[#4f7af7] text-white font-semibold rounded-lg px-4 py-2 text-sm transition-colors flex items-center justify-center gap-1"> <i data-lucide="plus" style="width:16px;height:16px"></i> Adicionar </button></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs"><thead><tr class="text-[#8b949e] border-b border-[#21262d]"><th class="text-left py-2 px-2 font-medium">Tema</th><th class="text-left py-2 px-2 font-medium">Autor</th><th class="text-right py-2 px-2 font-medium">👍</th><th class="text-right py-2 px-2 font-medium">💬</th><th class="text-right py-2 px-2 font-medium">🔁</th><th class="text-right py-2 px-2 font-medium">🔖</th><th class="text-right py-2 px-2 font-medium">📡</th><th class="py-2 px-2"></th></tr></thead><tbody id="data-table"></tbody></table>
+          <p id="empty-msg" class="text-center text-[#484f58] text-sm py-6">Nenhum dado inserido ainda</p>
+        </div>
+      </section>
+      <section class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="stats-grid">
+        <div class="stat-card bg-[#161b22] border border-[#21262d] rounded-2xl p-4"><p class="text-[10px] text-[#8b949e] uppercase tracking-wider">Média Curtidas</p><p id="s-mean-curtidas" class="text-2xl font-bold text-white mt-1 font-mono">—</p></div>
+        <div class="stat-card bg-[#161b22] border border-[#21262d] rounded-2xl p-4"><p class="text-[10px] text-[#8b949e] uppercase tracking-wider">Desvio Padrão</p><p id="s-std-curtidas" class="text-2xl font-bold text-white mt-1 font-mono">—</p></div>
+        <div class="stat-card bg-[#161b22] border border-[#21262d] rounded-2xl p-4"><p class="text-[10px] text-[#8b949e] uppercase tracking-wider">Total Alcance</p><p id="s-total-alcance" class="text-2xl font-bold text-white mt-1 font-mono">—</p></div>
+        <div class="stat-card bg-[#161b22] border border-[#21262d] rounded-2xl p-4"><p class="text-[10px] text-[#8b949e] uppercase tracking-wider">Engajamento</p><p id="s-engagement" class="text-2xl font-bold text-[#6390ff] mt-1 font-mono">—</p></div>
+      </section>
+      <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in">
+        <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="bar-chart-3" style="width:16px;height:16px"></i> Visualização</h2>
+        <div class="flex gap-2 mb-3 flex-wrap"><button onclick="handleGenerateChart()" class="bg-[#6390ff] hover:bg-[#4f7af7] text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="refresh-cw" style="width:14px;height:14px"></i> Gerar </button> <button onclick="handleExportPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="file-pdf" style="width:14px;height:14px"></i> PDF </button> <button onclick="handleExportExcel()" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="table" style="width:14px;height:14px"></i> Excel </button></div>
+        <div style="position:relative;height:280px"><canvas id="chart"></canvas></div>
+      </section>
+    </main>
+    <div id="toast" class="fixed bottom-6 right-6 bg-[#161b22] border border-[#21262d] rounded-xl px-4 py-3 text-sm shadow-lg transition-all duration-300 translate-y-20 opacity-0 pointer-events-none z-50"></div>
+  </div>
+  <script>
+let allData = JSON.parse(localStorage.getItem('labData') || '[]');
+let chartInstance = null;
+
+function renderTable() {
+  const tbody = document.getElementById('data-table');
+  const empty = document.getElementById('empty-msg');
+  tbody.innerHTML = '';
+  allData.forEach((d, i) => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b border-[#21262d]';
+    tr.innerHTML = \`
+      <td class="py-2 px-2 text-white">\${d.tema}</td>
+      <td class="py-2 px-2">\${d.autor}</td>
+      <td class="py-2 px-2 text-right font-mono">\${d.curtidas}</td>
+      <td class="py-2 px-2 text-right font-mono">\${d.comentarios}</td>
+      <td class="py-2 px-2 text-right font-mono">\${d.compartilhamentos}</td>
+      <td class="py-2 px-2 text-right font-mono">\${d.salvos}</td>
+      <td class="py-2 px-2 text-right font-mono">\${d.alcance}</td>
+      <td class="py-2 px-2 text-right"><button onclick="handleDelete(\${i})" class="text-red-400 hover:text-red-300 text-xs">✕</button></td>
+    \`;
+    tbody.appendChild(tr);
+  });
+  empty.classList.toggle('hidden', allData.length > 0);
+}
+
+function avg(arr) { return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
+function stdDev(arr) {
+  if (arr.length < 2) return 0;
+  const m = avg(arr);
+  return Math.sqrt(arr.reduce((s,v) => s + (v-m)**2, 0) / (arr.length - 1));
+}
+
+function renderStats() {
+  if (!allData.length) {
+    ['s-mean-curtidas','s-std-curtidas','s-total-alcance','s-engagement'].forEach(id => document.getElementById(id).textContent = '—');
+    return;
+  }
+  const curtidas = allData.map(d => d.curtidas || 0);
+  const mean = avg(curtidas);
+  const std = stdDev(curtidas);
+  const totalAlcance = allData.reduce((s, d) => s + (d.alcance || 0), 0);
+  const totalEng = allData.reduce((s, d) => s + (d.curtidas||0) + (d.comentarios||0) + (d.compartilhamentos||0) + (d.salvos||0), 0);
+  const engRate = totalAlcance ? ((totalEng / totalAlcance) * 100).toFixed(2) : 0;
+  document.getElementById('s-mean-curtidas').textContent = mean.toFixed(1);
+  document.getElementById('s-std-curtidas').textContent = std.toFixed(1);
+  document.getElementById('s-total-alcance').textContent = totalAlcance.toLocaleString('pt-BR');
+  document.getElementById('s-engagement').textContent = engRate + '%';
+}
+
+function renderChart() {
+  const ctx = document.getElementById('chart');
+  if (chartInstance) chartInstance.destroy();
+  if (!allData.length) return;
+  const labels = allData.map((d, i) => d.tema || \`#\${i+1}\`);
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Curtidas', data: allData.map(d => d.curtidas||0), backgroundColor: 'rgba(99,144,255,0.7)', borderRadius: 4 },
+        { label: 'Comentários', data: allData.map(d => d.comentarios||0), backgroundColor: 'rgba(52,211,153,0.7)', borderRadius: 4 },
+        { label: 'Compartilhamentos', data: allData.map(d => d.compartilhamentos||0), backgroundColor: 'rgba(251,191,36,0.7)', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#8b949e', font: { size: 11 } } } },
+      scales: {
+        x: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' } },
+        y: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' } }
+      }
+    }
+  });
+}
+
+function handleAdd() {
+  const fields = ['tema','autor','curtidas','comentarios','compartilhamentos','salvos','alcance'];
+  const vals = {};
+  fields.forEach(f => {
+    const el = document.getElementById('f-' + f);
+    vals[f] = ['curtidas','comentarios','compartilhamentos','salvos','alcance'].includes(f)
+      ? (parseInt(el.value) || 0) : (el.value || '');
+  });
+  allData.push(vals);
+  localStorage.setItem('labData', JSON.stringify(allData));
+  fields.forEach(f => document.getElementById('f-' + f).value = '');
+  renderTable();
+  renderStats();
+  renderChart();
+  updateProgress();
+  showToast('✅ Dados salvos!');
+}
+
+function handleDelete(i) {
+  allData.splice(i, 1);
+  localStorage.setItem('labData', JSON.stringify(allData));
+  renderTable();
+  renderStats();
+  renderChart();
+  updateProgress();
+  showToast('🗑️ Removido');
+}
+
+function handleGenerateChart() {
+  if (!allData.length) { showToast('📊 Adicione dados'); return; }
+  renderChart();
+  showToast('✅ Gráfico atualizado!');
+}
+
+function handleExportPDF() {
+  if (!allData.length) { showToast('📄 Adicione dados'); return; }
+  const element = document.createElement('div');
+  element.style.padding = '20px';
+  element.style.backgroundColor = '#fff';
+  element.style.color = '#000';
+  element.innerHTML = \`<h1 style="font-size: 24px; font-weight: bold;">Lab Científico PIBIC</h1>
+    <p><strong>Data:</strong> \${new Date().toLocaleDateString('pt-BR')}</p>
+    <h2 style="font-size: 18px; margin-top: 20px;">Estatísticas</h2>
+    <table style="width:100%; border-collapse: collapse;"><tr style="background-color: #f0f0f0;"><th style="border:1px solid #ccc; padding:8px;">Métrica</th><th style="border:1px solid #ccc; padding:8px;">Valor</th></tr>
+    <tr><td style="border:1px solid #ccc; padding:8px;">Registros</td><td style="border:1px solid #ccc; padding:8px;">\${allData.length}</td></tr>
+    <tr><td style="border:1px solid #ccc; padding:8px;">Média de Curtidas</td><td style="border:1px solid #ccc; padding:8px;">\${avg(allData.map(d => d.curtidas||0)).toFixed(1)}</td></tr></table>\`;
+  html2pdf().set({filename: 'lab_' + new Date().toISOString().split('T')[0] + '.pdf'}).from(element).save();
+  showToast('✅ PDF salvo!');
+}
+
+function handleExportExcel() {
+  if (!allData.length) { showToast('📊 Adicione dados'); return; }
+  let csv = 'Tema,Autor,Curtidas,Comentários,Compartilhamentos,Salvos,Alcance\\n';
+  allData.forEach(d => {
+    csv += \`"\${d.tema}","\${d.autor}",\${d.curtidas},\${d.comentarios},\${d.compartilhamentos},\${d.salvos},\${d.alcance}\\n\`;
+  });
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'lab_' + new Date().toISOString().split('T')[0] + '.csv';
+  link.click();
+  showToast('✅ CSV salvo!');
+}
+
+function updateProgress() {
+  const n = allData.length;
+  const pct = Math.min(100, Math.round((n / 20) * 60) + (n > 0 ? 20 : 0));
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = pct + '% — ' + n + ' registros';
+  document.getElementById('record-count').textContent = n + ' registros';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('translate-y-20','opacity-0','pointer-events-none');
+  setTimeout(() => t.classList.add('translate-y-20','opacity-0','pointer-events-none'), 2500);
+}
+
+renderTable();
+renderStats();
+renderChart();
+updateProgress();
+lucide.createIcons();
+  <\/script>
+</body>
+</html>`;
+
+  const blob = new Blob([htmlContent], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'Lab_Cientifico_PIBIC.html';
+  link.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ App baixado!');
+}
 
 </script>
-
-</body>
-</html>
+     </details>
+    </section>
+   </main>
+  </div>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e3b7eabd2a2535f',t:'MTc3NDc1MTg2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+  </html>
