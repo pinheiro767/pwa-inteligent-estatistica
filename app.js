@@ -1,142 +1,140 @@
-let dados = carregarLocal();
-let chart;
+let dados = carregarLocal()
+let chart1, chart2
+
+function mostrar(sec){
+ document.querySelectorAll("section").forEach(s=>s.style.display="none")
+ document.getElementById(sec).style.display="block"
+}
 
 function adicionarLinha(){
-  tabelaDados.innerHTML += `
-  <tr>
-    <td><input></td>
-    <td>
-      <select>
-        <option>Pagina</option>
-        <option>Aluno</option>
-      </select>
-    </td>
-    <td><input type="number"></td>
-    <td><input type="number"></td>
-    <td><input type="number"></td>
-    <td><input type="number"></td>
-    <td><input type="number"></td>
-    <td><button onclick="this.parentElement.parentElement.remove()">❌</button></td>
-  </tr>`;
+ tabelaDados.innerHTML+=`
+ <tr>
+ <td><input></td>
+ <td><select><option>Pagina</option><option>Aluno</option></select></td>
+ <td><input type="number"></td>
+ <td><input type="number"></td>
+ <td><input type="number"></td>
+ <td><input type="number"></td>
+ <td><input type="number"></td>
+ <td><button onclick="this.parentElement.parentElement.remove()">X</button></td>
+ </tr>`
 }
 
 function salvarTabela(){
 
-  dados = [];
+ dados=[]
 
-  document.querySelectorAll("#tabelaDados tr").forEach(tr=>{
-    let tds = tr.querySelectorAll("td");
+ document.querySelectorAll("#tabelaDados tr").forEach(tr=>{
+ let t=tr.querySelectorAll("td")
 
-    let item = {
-      tema: tds[0].children[0].value,
-      autor: tds[1].children[0].value,
-      curtidas:+tds[2].children[0].value,
-      comentarios:+tds[3].children[0].value,
-      compartilhamentos:+tds[4].children[0].value,
-      salvamentos:+tds[5].children[0].value,
-      alcance:+tds[6].children[0].value
-    };
+ let obj={
+  tema:t[0].children[0].value,
+  autor:t[1].children[0].value,
+  curtidas:+t[2].children[0].value,
+  comentarios:+t[3].children[0].value,
+  compartilhamentos:+t[4].children[0].value,
+  salvamentos:+t[5].children[0].value,
+  alcance:+t[6].children[0].value
+ }
 
-    item.engajamento =
-      (item.curtidas+item.comentarios+item.compartilhamentos+item.salvamentos)/item.alcance;
+ if(obj.alcance==0)return
 
-    dados.push(item);
-  });
+ obj.engajamento=(obj.curtidas+obj.comentarios+obj.compartilhamentos+obj.salvamentos)/obj.alcance
 
-  salvarLocal(dados);
-  atualizar();
+ dados.push(obj)
+ })
+
+ salvarLocal(dados)
+ atualizar()
 }
 
 function atualizar(){
 
-  if(dados.length===0) return;
+ if(dados.length==0)return
 
-  let y = dados.map(d=>d.engajamento);
-  let x = dados.map((_,i)=>i+1);
+ let y=dados.map(d=>d.engajamento)
+ let x=dados.map((_,i)=>i+1)
 
-  let m = media(y);
-  let d = desvio(y);
+ let m=media(y)
+ let d=desvio(y)
 
-  let reg = regressao(x,y);
-  let pred = prever(x.length+1, reg.a, reg.b);
+ let reg=regressao(x,y)
+ let p=pValue(Math.abs(m/d))
 
-  let t = Math.abs(m/d);
-  let p = pValue(t);
+ stats.innerHTML=`Média: ${m.toFixed(3)}<br>Desvio: ${d.toFixed(3)}<br>p-value: ${p.toFixed(3)}`
 
-  stats.innerHTML = `
-  Média: ${m.toFixed(3)}<br>
-  Desvio: ${d.toFixed(3)}<br>
-  Predição: ${pred.toFixed(3)}<br>
-  p-value: ${p.toFixed(3)}
-  `;
-
-  gerarOrientador(m,d,p);
-
-  if(chart) chart.destroy();
-
-  chart = new Chart(grafico1,{
-    type:'bar',
-    data:{
-      labels:dados.map(d=>d.tema),
-      datasets:[{data:y}]
-    }
-  });
-
-  atualizarProgresso();
-  gerarCalendario();
+ gerarGraficos(x,y)
+ progressoBarra()
+ lembrete()
+ orientador(m,d,p)
 }
 
-/* 🤖 ORIENTADOR */
-function gerarOrientador(m,d,p){
+function gerarGraficos(x,y){
 
-  let msg="";
+ if(chart1) chart1.destroy()
 
-  if(m < 0.05){
-    msg += "⚠️ Engajamento baixo. Melhorar conteúdo.\n";
-  } else {
-    msg += "✅ Engajamento adequado.\n";
+ chart1=new Chart(document.getElementById("graficoEngajamento"),{
+  type:'line',
+  data:{
+   labels:x,
+   datasets:[{
+    label:"Engajamento",
+    data:y
+   }]
   }
+ })
 
-  if(d > 0.05){
-    msg += "⚠️ Dados muito variáveis.\n";
+ if(chart2) chart2.destroy()
+
+ chart2=new Chart(document.getElementById("graficoComparacao"),{
+  type:'bar',
+  data:{
+   labels:dados.map(d=>d.tema),
+   datasets:[{
+    label:"Comparação",
+    data:y
+   }]
   }
-
-  if(p < 0.05){
-    msg += "📊 Resultado estatisticamente relevante.\n";
-  }
-
-  orientador.innerText = msg;
+ })
 }
 
-/* 📊 PROGRESSO */
-function atualizarProgresso(){
-  let total = 60;
-  let atual = dados.length;
-  let p = (atual/total)*100;
-
-  progresso.style.width = p+"%";
-  textoProgresso.innerText = `${atual}/60 análises`;
+function progressoBarra(){
+ let p=(dados.length/60)*100
+ progresso.style.width=p+"%"
+ textoProgresso.innerText=`${dados.length}/60`
 }
 
-/* 📅 CALENDÁRIO */
-function gerarCalendario(){
-  let html="";
-  for(let i=1;i<=365;i++){
-    html+=`<div class="dia">${i}</div>`;
-  }
-  calendario.innerHTML=html;
+function lembrete(){
+
+ let ultima=localStorage.getItem("data")
+
+ let hoje=new Date()
+
+ if(ultima){
+ let diff=(hoje-new Date(ultima))/(1000*60*60*24)
+ if(diff>15){
+  alert("⚠️ Coletar dados com Cláudia Pinheiro")
+ }
+ }
+
+ localStorage.setItem("data",hoje)
 }
 
-/* 🔒 ARTIGO */
-function abrirModoProf(){
-  let s=prompt("Senha:");
-  if(s==="prof2026"){
-    areaProf.style.display="block";
-  }
+function orientador(m,d,p){
+
+ let msg=""
+
+ if(m<0.05) msg+="Engajamento baixo\n"
+ else msg+="Engajamento bom\n"
+
+ if(p<0.05) msg+="Resultado relevante\n"
+
+ orientador.innerText=msg
 }
 
 function gerarArtigo(){
-  artigo.innerText="Artigo gerado automaticamente.";
+ let texto=inputArtigo.value
+ saidaArtigo.innerText=`RESULTADOS\n${texto}\n\nDISCUSSÃO\nAnálise científica gerada automaticamente.`
 }
 
-atualizar();
+atualizar()
