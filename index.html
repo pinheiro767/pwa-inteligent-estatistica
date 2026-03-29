@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lab Científico Inteligente</title>
+
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="styles.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<h1>📊 Lab Científico Inteligente</h1>
+
+<!-- PROGRESSO -->
+<div class="card">
+<h2>📊 Progresso</h2>
+<div class="progress-bar"><div id="progresso"></div></div>
+<p id="textoProgresso"></p>
+</div>
+
+<!-- TABELA -->
+<table>
+<thead>
+<tr>
+<th>Tema</th>
+<th>Autor</th>
+<th>Curtidas</th>
+<th>Comentários</th>
+<th>Envios</th>
+<th>Salvos</th>
+<th>Alcance</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody id="tabelaDados"></tbody>
+</table>
+
+<button onclick="adicionarLinha()">➕ Linha</button>
+<button onclick="salvarTabela()">💾 Salvar</button>
+
+<!-- DASHBOARD -->
+<div class="card">
+<h2>📊 Estatística</h2>
+<div id="stats"></div>
+</div>
+
+<canvas id="grafico1"></canvas>
+
+<!-- 🤖 ORIENTADOR -->
+<div class="card">
+<h2>🤖 Orientador Inteligente</h2>
+<div id="orientador"></div>
+</div>
+
+<!-- 📅 CALENDÁRIO -->
+<div class="card">
+<h2>📅 Calendário</h2>
+<div id="calendario"></div>
+</div>
+
+<!-- 🔒 ARTIGO -->
+<button onclick="abrirModoProf()">🔒 Modo Professor</button>
+
+<div id="areaProf" style="display:none;">
+<button onclick="gerarArtigo()">Gerar Artigo</button>
+<pre id="artigo"></pre>
+</div>
+
+<script src="db.js"></script>
+<script src="stats.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
