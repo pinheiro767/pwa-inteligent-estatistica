@@ -4,37 +4,58 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Lab Científico Inteligente</title>
+<title>Lab Científico PIBIC</title>
 
-<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.json">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
-<h1>📊 Lab Científico Inteligente</h1>
+<header>
+<h1>📊 Lab Científico PIBIC</h1>
+</header>
 
-<!-- PROGRESSO -->
+<nav>
+<button onclick="mostrar('dashboard')">Dashboard</button>
+<button onclick="mostrar('dados')">Dados</button>
+<button onclick="mostrar('artigo')">Artigo</button>
+<button onclick="mostrar('manual')">Manual</button>
+</nav>
+
+<!-- DASHBOARD -->
+<section id="dashboard">
+
 <div class="card">
 <h2>📊 Progresso</h2>
 <div class="progress-bar"><div id="progresso"></div></div>
 <p id="textoProgresso"></p>
 </div>
 
-<!-- TABELA -->
+<div class="card">
+<h2>📈 Estatísticas</h2>
+<div id="stats"></div>
+</div>
+
+<canvas id="graficoEngajamento"></canvas>
+<canvas id="graficoComparacao"></canvas>
+
+<div class="card">
+<h2>🤖 Orientador</h2>
+<div id="orientador"></div>
+</div>
+
+</section>
+
+<!-- DADOS -->
+<section id="dados" style="display:none;">
+
 <table>
 <thead>
 <tr>
-<th>Tema</th>
-<th>Autor</th>
-<th>Curtidas</th>
-<th>Comentários</th>
-<th>Envios</th>
-<th>Salvos</th>
-<th>Alcance</th>
-<th>Ação</th>
+<th>Tema</th><th>Autor</th><th>Likes</th><th>Com</th><th>Env</th><th>Salv</th><th>Alcance</th><th></th>
 </tr>
 </thead>
 <tbody id="tabelaDados"></tbody>
@@ -43,33 +64,38 @@
 <button onclick="adicionarLinha()">➕ Linha</button>
 <button onclick="salvarTabela()">💾 Salvar</button>
 
-<!-- DASHBOARD -->
+</section>
+
+<!-- ARTIGO -->
+<section id="artigo" style="display:none;">
+
 <div class="card">
-<h2>📊 Estatística</h2>
-<div id="stats"></div>
+<h2>📄 Construção do Artigo</h2>
+
+<textarea id="inputArtigo" placeholder="Cole referências ou dados..."></textarea>
+
+<button onclick="gerarArtigo()">Gerar Texto</button>
+
+<pre id="saidaArtigo"></pre>
+
 </div>
 
-<canvas id="grafico1"></canvas>
+</section>
 
-<!-- 🤖 ORIENTADOR -->
+<!-- MANUAL -->
+<section id="manual" style="display:none;">
 <div class="card">
-<h2>🤖 Orientador Inteligente</h2>
-<div id="orientador"></div>
-</div>
+<h2>📖 Manual</h2>
 
-<!-- 📅 CALENDÁRIO -->
-<div class="card">
-<h2>📅 Calendário</h2>
-<div id="calendario"></div>
-</div>
+<p><b>Inserção:</b> inserir dados a cada 15 dias.</p>
+<p><b>Média:</b> nível de engajamento.</p>
+<p><b>Desvio:</b> estabilidade dos dados.</p>
+<p><b>p-value:</b> relevância estatística.</p>
 
-<!-- 🔒 ARTIGO -->
-<button onclick="abrirModoProf()">🔒 Modo Professor</button>
+<p><b>Lembrete:</b> coletar dados com Cláudia Pinheiro.</p>
 
-<div id="areaProf" style="display:none;">
-<button onclick="gerarArtigo()">Gerar Artigo</button>
-<pre id="artigo"></pre>
 </div>
+</section>
 
 <script src="db.js"></script>
 <script src="stats.js"></script>
