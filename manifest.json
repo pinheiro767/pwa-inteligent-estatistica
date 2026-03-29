@@ -1,6 +1,6 @@
 {
-  "name": "Lab Científico PIBIC",
-  "short_name": "PIBIC",
+  "name": "Lab Científico",
+  "short_name": "Lab",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0b1020",
