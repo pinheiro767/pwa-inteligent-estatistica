@@ -1,20 +1,8 @@
 {
-  "name": "Lab Científico Inteligente",
-  "short_name": "Lab",
+  "name": "Lab Científico PIBIC",
+  "short_name": "PIBIC",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0b1020",
-  "theme_color": "#7aa2ff",
-  "icons": [
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+  "theme_color": "#7aa2ff"
 }
