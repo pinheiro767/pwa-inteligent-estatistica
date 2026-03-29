@@ -11,6 +11,11 @@
   <script src="/_sdk/element_sdk.js"></script>
   <script src="/_sdk/data_sdk.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="description" content="Lab Científico PIBIC - Análise de engajamento digital em saúde">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%236390ff' width='192' height='192'/><text x='96' y='130' font-size='120' font-weight='bold' fill='white' text-anchor='middle' font-family='Arial'>P</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%236390ff' width='192' height='192' rx='45'/><text x='96' y='130' font-size='120' font-weight='bold' fill='white' text-anchor='middle' font-family='Arial'>P</text></svg>">
   <script>
 tailwind.config = {
   theme: {
@@ -18,6 +23,9 @@ tailwind.config = {
       fontFamily: { body: ['DM Sans', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
     }
   }
+}
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
 }
 </script>
   <style>
@@ -109,8 +117,7 @@ tailwind.config = {
   <style>body { box-sizing: border-box; }</style>
  </head>
  <body class="h-full bg-[#0d1117] text-[#c9d1d9] font-body">
-  <div class="scroll-wrap w-full" id="app-root">
-   <!-- Header -->
+  <div class="scroll-wrap w-full" id="app-root"><!-- Header -->
    <header class="bg-[#161b22] border-b border-[#21262d] px-6 py-5 fade-in">
     <div class="max-w-6xl mx-auto flex items-center justify-between flex-wrap gap-3">
      <div class="flex items-center gap-3">
@@ -122,13 +129,11 @@ tailwind.config = {
        <p id="el-objective" class="text-sm text-[#8b949e] mt-0.5">Analisar engajamento digital em saúde</p>
       </div>
      </div>
-     <div class="flex items-center gap-2 text-xs text-[#8b949e]">
-      <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> <span id="record-count">0 registros</span>
+     <div class="flex items-center gap-2 text-xs text-[#8b949e]"><span class="pulse-dot w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> <span id="record-count">0 registros</span>
      </div>
     </div>
    </header>
-   <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
-    <!-- Progress -->
+   <main class="max-w-6xl mx-auto px-4 py-6 space-y-6"><!-- Progress -->
     <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in" style="animation-delay:0.05s">
      <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="trending-up" style="width:16px;height:16px"></i> Progresso do Projeto</h2>
      <div class="w-full bg-[#0d1117] rounded-full h-3 overflow-hidden">
@@ -138,8 +143,7 @@ tailwind.config = {
     </section><!-- Data Entry -->
     <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in" style="animation-delay:0.1s">
      <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider mb-4 flex items-center gap-2"><i data-lucide="database" style="width:16px;height:16px"></i> Entrada de Dados</h2>
-     <div id="form-area" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-      <input id="f-tema" class="col-span-2 sm:col-span-1 bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Tema"> <input id="f-autor" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Autor"> <input id="f-curtidas" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Curtidas"> <input id="f-comentarios" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Comentários"> <input id="f-compartilhamentos" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Compartilhamentos"> <input id="f-salvos" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Salvos"> <input id="f-alcance" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Alcance"> <button id="btn-add" onclick="handleAdd()" class="bg-[#6390ff] hover:bg-[#4f7af7] text-white font-semibold rounded-lg px-4 py-2 text-sm transition-colors flex items-center justify-center gap-1"> <i data-lucide="plus" style="width:16px;height:16px"></i> Adicionar </button>
+     <div id="form-area" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4"><input id="f-tema" class="col-span-2 sm:col-span-1 bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Tema"> <input id="f-autor" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Autor"> <input id="f-curtidas" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Curtidas"> <input id="f-comentarios" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Comentários"> <input id="f-compartilhamentos" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Compartilhamentos"> <input id="f-salvos" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Salvos"> <input id="f-alcance" type="number" min="0" class="bg-[#0d1117] border border-[#21262d] rounded-lg px-3 py-2 text-sm text-white placeholder-[#484f58]" placeholder="Alcance"> <button id="btn-add" onclick="handleAdd()" class="bg-[#6390ff] hover:bg-[#4f7af7] text-white font-semibold rounded-lg px-4 py-2 text-sm transition-colors flex items-center justify-center gap-1"> <i data-lucide="plus" style="width:16px;height:16px"></i> Adicionar </button>
      </div><!-- Data Table -->
      <div class="overflow-x-auto">
       <table class="w-full text-xs">
@@ -188,8 +192,7 @@ tailwind.config = {
     <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in" style="animation-delay:0.25s">
      <div class="flex items-center justify-between mb-3">
       <h2 class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider flex items-center gap-2"><i data-lucide="bar-chart-3" style="width:16px;height:16px"></i> Visualização</h2>
-      <div class="flex gap-2 flex-wrap">
-       <button onclick="handleGenerateChart()" class="bg-[#6390ff] hover:bg-[#4f7af7] text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="refresh-cw" style="width:14px;height:14px"></i> Gerar </button> <button onclick="handleExportPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="file-pdf" style="width:14px;height:14px"></i> PDF </button> <button onclick="handleExportExcel()" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="table" style="width:14px;height:14px"></i> Excel </button> <button onclick="handleDownloadApp()" class="bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="download" style="width:14px;height:14px"></i> App </button>
+      <div class="flex gap-2 flex-wrap"><button onclick="handleGenerateChart()" class="bg-[#6390ff] hover:bg-[#4f7af7] text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="refresh-cw" style="width:14px;height:14px"></i> Gerar </button> <button onclick="handleExportPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="file-pdf" style="width:14px;height:14px"></i> PDF </button> <button onclick="handleExportExcel()" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="table" style="width:14px;height:14px"></i> Excel </button> <button onclick="handleDownloadApp()" class="bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-3 py-1.5 text-xs transition-colors flex items-center gap-1"> <i data-lucide="download" style="width:14px;height:14px"></i> App </button>
       </div>
      </div>
      <div style="position:relative;height:280px">
@@ -220,8 +223,7 @@ tailwind.config = {
      </section>
     </div><!-- Manual -->
     <section class="bg-[#161b22] rounded-2xl border border-[#21262d] p-5 fade-in" style="animation-delay:0.4s">
-     <details open>
-      <summary class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider cursor-pointer flex items-center gap-2"> <i data-lucide="book-open" style="width:16px;height:16px"></i> Manual Completo </summary>
+     <details open><summary class="text-sm font-semibold text-[#8b949e] uppercase tracking-wider cursor-pointer flex items-center gap-2"> <i data-lucide="book-open" style="width:16px;height:16px"></i> Manual Completo </summary>
       <div class="mt-6 text-sm text-[#8b949e] leading-relaxed space-y-6">
        <div>
         <h3 class="text-white font-semibold text-base mb-2">📌 Objetivo do Projeto</h3>
@@ -316,13 +318,13 @@ tailwind.config = {
            <p class="text-white font-semibold mb-2">Exemplos de Interpretação:</p>
            <ul class="space-y-2 text-sm">
             <li><strong>DP = 5 (baixo):</strong> Valores: 48, 49, 50, 51, 52<br>
-             → Dados muito consistentes, comportamento previsível ✅</li>
+              → Dados muito consistentes, comportamento previsível ✅</li>
             <li><strong>DP = 100 (alto):</strong> Valores: 10, 50, 200, 5, 500<br>
-             → Dados muito dispersos, imprevisível ⚠️</li>
+              → Dados muito dispersos, imprevisível ⚠️</li>
            </ul>
           </div>
           <p class="mb-3"><strong>Coeficiente de Variação (CV):</strong> DP ÷ Média × 100%<br>
-           Padroniza o desvio padrão (elimina escala):</p>
+            Padroniza o desvio padrão (elimina escala):</p>
           <ul class="list-disc ml-5 space-y-1 text-sm">
            <li><strong>CV &lt; 15%</strong> = Muito consistente (excelente predictor)</li>
            <li><strong>CV 15-30%</strong> = Consistente (bom)</li>
@@ -1115,5 +1117,5 @@ lucide.createIcons();
     </section>
    </main>
   </div>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e3b7eabd2a2535f',t:'MTc3NDc1MTg2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-  </html>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e3b8a20f08bae9f',t:'MTc3NDc1MjMzOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+                                                         </html>
