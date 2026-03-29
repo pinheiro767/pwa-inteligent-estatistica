@@ -1,140 +1,142 @@
-let dados = carregarLocal()
-let chart1, chart2
+let dados = JSON.parse(localStorage.getItem("dados")) || [];
+let chart;
+let deferredPrompt;
 
-function mostrar(sec){
- document.querySelectorAll("section").forEach(s=>s.style.display="none")
- document.getElementById(sec).style.display="block"
+/* TABELA */
+function addRow(){
+  dados.push({
+    tema:"",
+    autor:"Página",
+    curtidas:0,
+    comentarios:0,
+    compartilhamentos:0,
+    salvamentos:0,
+    alcance:0
+  });
+  render();
 }
 
-function adicionarLinha(){
- tabelaDados.innerHTML+=`
- <tr>
- <td><input></td>
- <td><select><option>Pagina</option><option>Aluno</option></select></td>
- <td><input type="number"></td>
- <td><input type="number"></td>
- <td><input type="number"></td>
- <td><input type="number"></td>
- <td><input type="number"></td>
- <td><button onclick="this.parentElement.parentElement.remove()">X</button></td>
- </tr>`
+function update(i,c,v){
+  dados[i][c] = c=="tema"||c=="autor" ? v : +v;
 }
 
-function salvarTabela(){
+function render(){
 
- dados=[]
+  tabelaDados.innerHTML = dados.map((d,i)=>`
+  <tr>
+    <td><input value="${d.tema}" onchange="update(${i},'tema',this.value)"></td>
+    <td>
+      <select onchange="update(${i},'autor',this.value)">
+        <option ${d.autor=="Página"?"selected":""}>Página</option>
+        <option ${d.autor=="Aluno"?"selected":""}>Aluno</option>
+      </select>
+    </td>
+    <td><input type="number" value="${d.curtidas}" onchange="update(${i},'curtidas',this.value)"></td>
+    <td><input type="number" value="${d.comentarios}" onchange="update(${i},'comentarios',this.value)"></td>
+    <td><input type="number" value="${d.compartilhamentos}" onchange="update(${i},'compartilhamentos',this.value)"></td>
+    <td><input type="number" value="${d.salvamentos}" onchange="update(${i},'salvamentos',this.value)"></td>
+    <td><input type="number" value="${d.alcance}" onchange="update(${i},'alcance',this.value)"></td>
+    <td><button onclick="del(${i})">X</button></td>
+  </tr>
+  `).join("");
 
- document.querySelectorAll("#tabelaDados tr").forEach(tr=>{
- let t=tr.querySelectorAll("td")
+  atualizar();
+}
 
- let obj={
-  tema:t[0].children[0].value,
-  autor:t[1].children[0].value,
-  curtidas:+t[2].children[0].value,
-  comentarios:+t[3].children[0].value,
-  compartilhamentos:+t[4].children[0].value,
-  salvamentos:+t[5].children[0].value,
-  alcance:+t[6].children[0].value
- }
+function del(i){
+  dados.splice(i,1);
+  render();
+}
 
- if(obj.alcance==0)return
+/* SALVAR */
+function salvar(){
+  localStorage.setItem("dados", JSON.stringify(dados));
+  alert("Dados salvos!");
+}
 
- obj.engajamento=(obj.curtidas+obj.comentarios+obj.compartilhamentos+obj.salvamentos)/obj.alcance
-
- dados.push(obj)
- })
-
- salvarLocal(dados)
- atualizar()
+/* ESTATÍSTICA */
+function media(a){return a.reduce((s,v)=>s+v,0)/a.length}
+function desvio(a){
+ let m=media(a)
+ return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length)
 }
 
 function atualizar(){
 
- if(dados.length==0)return
+  let validos = dados.filter(d=>d.alcance>0);
 
- let y=dados.map(d=>d.engajamento)
- let x=dados.map((_,i)=>i+1)
+  if(validos.length==0) return;
 
- let m=media(y)
- let d=desvio(y)
+  let y = validos.map(d=>
+    (d.curtidas+d.comentarios+d.compartilhamentos+d.salvamentos)/d.alcance
+  );
 
- let reg=regressao(x,y)
- let p=pValue(Math.abs(m/d))
+  let m = media(y);
+  let d = desvio(y);
+  let p = Math.exp(-0.717*(m/d) -0.416*(m/d)**2);
 
- stats.innerHTML=`Média: ${m.toFixed(3)}<br>Desvio: ${d.toFixed(3)}<br>p-value: ${p.toFixed(3)}`
+  stats.innerHTML = `
+  Média: ${m.toFixed(3)}<br>
+  Desvio: ${d.toFixed(3)}<br>
+  p-value: ${p.toFixed(3)}
+  `;
 
- gerarGraficos(x,y)
- progressoBarra()
- lembrete()
- orientador(m,d,p)
+  orientador.innerHTML = `
+  ${m<0.05?"⚠️ Baixo engajamento":"✅ Bom engajamento"}<br>
+  ${p<0.05?"📊 Resultado relevante":"📉 Sem significância"}
+  `;
+
+  /* GRÁFICO */
+  if(chart) chart.destroy();
+
+  chart = new Chart(grafico,{
+    type:'bar',
+    data:{
+      labels:validos.map(d=>d.tema),
+      datasets:[{data:y}]
+    }
+  });
+
+  /* PROGRESSO */
+  let perc = (validos.length/60)*100;
+  progresso.style.width = perc+"%";
+  textoProgresso.innerText = validos.length+"/60";
+
 }
 
-function gerarGraficos(x,y){
-
- if(chart1) chart1.destroy()
-
- chart1=new Chart(document.getElementById("graficoEngajamento"),{
-  type:'line',
-  data:{
-   labels:x,
-   datasets:[{
-    label:"Engajamento",
-    data:y
-   }]
-  }
- })
-
- if(chart2) chart2.destroy()
-
- chart2=new Chart(document.getElementById("graficoComparacao"),{
-  type:'bar',
-  data:{
-   labels:dados.map(d=>d.tema),
-   datasets:[{
-    label:"Comparação",
-    data:y
-   }]
-  }
- })
-}
-
-function progressoBarra(){
- let p=(dados.length/60)*100
- progresso.style.width=p+"%"
- textoProgresso.innerText=`${dados.length}/60`
-}
-
+/* LEMBRETE */
 function lembrete(){
+  let u = localStorage.getItem("ultima");
+  let h = new Date();
 
- let ultima=localStorage.getItem("data")
+  if(u){
+    let diff = (h - new Date(u))/(1000*60*60*24);
+    if(diff>15){
+      alert("⚠️ Coletar dados com Cláudia Pinheiro");
+    }
+  }
 
- let hoje=new Date()
-
- if(ultima){
- let diff=(hoje-new Date(ultima))/(1000*60*60*24)
- if(diff>15){
-  alert("⚠️ Coletar dados com Cláudia Pinheiro")
- }
- }
-
- localStorage.setItem("data",hoje)
+  localStorage.setItem("ultima", h);
 }
 
-function orientador(m,d,p){
+/* PWA INSTALAR */
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+});
 
- let msg=""
-
- if(m<0.05) msg+="Engajamento baixo\n"
- else msg+="Engajamento bom\n"
-
- if(p<0.05) msg+="Resultado relevante\n"
-
- orientador.innerText=msg
+function instalarApp(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+  }else{
+    alert("Use 'Adicionar à tela inicial' no navegador");
+  }
 }
 
-function gerarArtigo(){
- let texto=inputArtigo.value
- saidaArtigo.innerText=`RESULTADOS\n${texto}\n\nDISCUSSÃO\nAnálise científica gerada automaticamente.`
+/* SERVICE WORKER */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('service-worker.js');
 }
 
-atualizar()
+lembrete();
+render();
